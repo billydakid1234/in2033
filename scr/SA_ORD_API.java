@@ -1,13 +1,15 @@
-public interface SA_ORD_API {   
 
-    abstract String newOrder();  
 
-    abstract void addItems(String orderID, int[] itemIDs, int[] quantities);   
+public interface SA_ORD_API {   
 
-    abstract void removeItems(String orderID, int[] itemIDs, int[] quantitiesToRemove);  
+    abstract String newOrder();  
 
-    abstract void submitOrder(String orderID);  
+    abstract void addItems(String orderID, int[] itemIDs, int[] quantities);   
 
-    abstract Catalogue getActiveCatalogue();  
+    abstract void removeItems(String orderID, int[] itemIDs, int[] quantitiesToRemove);  
+
+    abstract void submitOrder(String orderID);
+
+    abstract Catalogue getActiveCatalogue(); 
     
 }

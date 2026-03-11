@@ -1,11 +1,12 @@
-public interface SA_Merchant_API {  
 
-    abstract Invoice getInvoice(String orderID);  
+public interface SA_Merchant_API{ 
 
-    abstract String[] getOrderStatus(String orderID);  
+    abstract Invoice getInvoice(String orderID); 
 
-    abstract double getBalance();  
+    abstract String[] getOrderStatus(String orderID);
+
+    abstract double getBalance(); 
     
-    abstract Invoice[] getDuePayments();  
+    abstract Invoice[] getDuePayments(); 
 
 }
