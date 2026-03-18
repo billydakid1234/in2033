@@ -48,9 +48,9 @@ public class StockScreen extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        sidebarPanel.setBackground(new java.awt.Color(0, 51, 102));
+        sidebarPanel.setBackground(new java.awt.Color(0, 0, 51));
 
-        btnDashboard.setBackground(new java.awt.Color(0, 51, 102));
+        btnDashboard.setBackground(new java.awt.Color(0, 0, 51));
         btnDashboard.setFont(new java.awt.Font("Helvetica Neue", 1, 13)); // NOI18N
         btnDashboard.setForeground(new java.awt.Color(255, 255, 255));
         btnDashboard.setText("Dashboard");
@@ -58,7 +58,7 @@ public class StockScreen extends javax.swing.JFrame {
         btnDashboard.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnDashboard.addActionListener(this::btnDashboardActionPerformed);
 
-        btnStock.setBackground(new java.awt.Color(0, 51, 102));
+        btnStock.setBackground(new java.awt.Color(0, 0, 51));
         btnStock.setFont(new java.awt.Font("Helvetica Neue", 1, 13)); // NOI18N
         btnStock.setForeground(new java.awt.Color(255, 255, 255));
         btnStock.setText("Stock");
@@ -66,7 +66,7 @@ public class StockScreen extends javax.swing.JFrame {
         btnStock.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnStock.addActionListener(this::btnStockActionPerformed);
 
-        btnSales.setBackground(new java.awt.Color(0, 51, 102));
+        btnSales.setBackground(new java.awt.Color(0, 0, 51));
         btnSales.setFont(new java.awt.Font("Helvetica Neue", 1, 13)); // NOI18N
         btnSales.setForeground(new java.awt.Color(255, 255, 255));
         btnSales.setText("Sales");
@@ -74,7 +74,7 @@ public class StockScreen extends javax.swing.JFrame {
         btnSales.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnSales.addActionListener(this::btnSalesActionPerformed);
 
-        btnOrders.setBackground(new java.awt.Color(0, 51, 102));
+        btnOrders.setBackground(new java.awt.Color(0, 0, 51));
         btnOrders.setFont(new java.awt.Font("Helvetica Neue", 1, 13)); // NOI18N
         btnOrders.setForeground(new java.awt.Color(255, 255, 255));
         btnOrders.setText("Orders");
