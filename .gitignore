@@ -1,2 +1,8 @@
 /nbproject/private/
 /build/
+# Build and IDE folders
+/dist/
+/nbproject/private/
+/*.class
+/*.jar
+/IN-2033.app/
