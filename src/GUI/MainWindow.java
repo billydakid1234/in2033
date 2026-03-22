@@ -47,6 +47,7 @@ public class MainWindow extends javax.swing.JFrame {
         lbMenu = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         btnReports = new javax.swing.JButton();
+        btnCustomers = new javax.swing.JButton();
         contentPanel = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -67,6 +68,9 @@ public class MainWindow extends javax.swing.JFrame {
         btnStock.setText("Stock");
         btnStock.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         btnStock.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnStock.setMaximumSize(new java.awt.Dimension(55, 29));
+        btnStock.setMinimumSize(new java.awt.Dimension(55, 29));
+        btnStock.setPreferredSize(new java.awt.Dimension(55, 29));
         btnStock.addActionListener(this::btnStockActionPerformed);
 
         btnSales.setBackground(new java.awt.Color(0, 0, 51));
@@ -109,6 +113,17 @@ public class MainWindow extends javax.swing.JFrame {
         btnReports.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnReports.addActionListener(this::btnReportsActionPerformed);
 
+        btnCustomers.setBackground(new java.awt.Color(0, 0, 51));
+        btnCustomers.setFont(new java.awt.Font("Helvetica Neue", 1, 20)); // NOI18N
+        btnCustomers.setForeground(new java.awt.Color(255, 255, 255));
+        btnCustomers.setText("Customers");
+        btnCustomers.setBorder(null);
+        btnCustomers.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnCustomers.setMaximumSize(new java.awt.Dimension(55, 29));
+        btnCustomers.setMinimumSize(new java.awt.Dimension(55, 29));
+        btnCustomers.setPreferredSize(new java.awt.Dimension(55, 29));
+        btnCustomers.addActionListener(this::btnCustomersActionPerformed);
+
         javax.swing.GroupLayout sidebarPanelLayout = new javax.swing.GroupLayout(sidebarPanel);
         sidebarPanel.setLayout(sidebarPanelLayout);
         sidebarPanelLayout.setHorizontalGroup(
@@ -122,11 +137,12 @@ public class MainWindow extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(lbMenu, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(45, 45, 45))
+            .addComponent(btnReports, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(sidebarPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addContainerGap())
-            .addComponent(btnReports, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btnCustomers, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         sidebarPanelLayout.setVerticalGroup(
             sidebarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -135,19 +151,21 @@ public class MainWindow extends javax.swing.JFrame {
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lbMenu, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(39, 39, 39)
+                .addGap(40, 40, 40)
                 .addComponent(btnDashboard, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnStock, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnSales, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
+                .addComponent(btnCustomers, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnOrders, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGap(12, 12, 12)
                 .addComponent(btnReports, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(51, 51, 51)
+                .addGap(88, 88, 88)
                 .addComponent(btnLogout, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(257, Short.MAX_VALUE))
+                .addContainerGap(156, Short.MAX_VALUE))
         );
 
         contentPanel.setLayout(new java.awt.BorderLayout());
@@ -210,16 +228,29 @@ public class MainWindow extends javax.swing.JFrame {
         contentPanel.repaint();
     }//GEN-LAST:event_btnReportsActionPerformed
 
+    private void btnCustomersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCustomersActionPerformed
+                                       
+    contentPanel.removeAll();
+    contentPanel.add(new Customers(), java.awt.BorderLayout.CENTER);
+    contentPanel.revalidate();
+    contentPanel.repaint();
+    }//GEN-LAST:event_btnCustomersActionPerformed
+
+    
+
+    
+    
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
     java.awt.EventQueue.invokeLater(() -> {
         new MainWindow().setVisible(true);
-        });
+        }); 
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnCustomers;
     private javax.swing.JButton btnDashboard;
     private javax.swing.JButton btnLogout;
     private javax.swing.JButton btnOrders;
