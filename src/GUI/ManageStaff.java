@@ -26,19 +26,255 @@ public class ManageStaff extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        CustomerJpanel2 = new java.awt.Label();
+        jLabel1 = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jButton1 = new javax.swing.JButton();
+
+        CustomerJpanel2.setFont(new java.awt.Font("Helvetica Neue", 1, 20)); // NOI18N
+        CustomerJpanel2.setForeground(new java.awt.Color(102, 102, 102));
+        CustomerJpanel2.setText("Manage customer accounts and credit");
+
+        jLabel1.setFont(new java.awt.Font("Helvetica Neue", 1, 36)); // NOI18N
+        jLabel1.setText("Staff Management");
+
+        jLabel3.setFont(new java.awt.Font("Helvetica Neue", 1, 20)); // NOI18N
+        jLabel3.setText("Staff Accounts");
+
+        jTextField1.setText("Search by name, account number, or email...");
+        jTextField1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jTextField1.addActionListener(this::jTextField1ActionPerformed);
+
+        jLabel4.setFont(new java.awt.Font("Helvetica Neue", 1, 18)); // NOI18N
+        jLabel4.setText("Search:");
+
+        jScrollPane2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
+            },
+            new String [] {
+                "Account #", "StaffID", "Name", "Email", "Phone", "Role"
+            }
+        ));
+        jScrollPane2.setViewportView(jTable1);
+
+        jButton1.setBackground(new java.awt.Color(0, 0, 51));
+        jButton1.setFont(new java.awt.Font("Helvetica Neue", 1, 18)); // NOI18N
+        jButton1.setForeground(new java.awt.Color(255, 255, 255));
+        jButton1.setText("+ Add Staff");
+        jButton1.addActionListener(this::jButton1ActionPerformed);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 1018, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addGap(18, 18, 18)
+                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 341, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jLabel3))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(49, 49, 49)))
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButton1)
+                .addGap(30, 30, 30)
+                .addComponent(jLabel3)
+                .addGap(28, 28, 28)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 521, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(18, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1154, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(30, 30, 30)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(CustomerJpanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel1)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(58, 58, 58)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(0, 66, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 788, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(42, 42, 42)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(CustomerJpanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(22, 22, 22)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        CustomerJpanel2.getAccessibleContext().setAccessibleName("Manage staff accounts");
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField1ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+
+        javax.swing.JTextField txtAccountId = new javax.swing.JTextField();
+        javax.swing.JTextField txtStaffId = new javax.swing.JTextField();
+        javax.swing.JTextField txtName = new javax.swing.JTextField();
+        javax.swing.JTextField txtEmail = new javax.swing.JTextField();
+        javax.swing.JTextField txtPhone = new javax.swing.JTextField();
+        String[] roles = {"Admin", "Manager", "Pharmacist"};
+        javax.swing.JComboBox<String> comboRole = new javax.swing.JComboBox<>(roles);
+        
+
+        /*
+        String[] discountPlans = {"None", "Fixed Discount", "Variable (Volume-Based)"};
+        javax.swing.JComboBox<String> cmbDiscountPlan = new javax.swing.JComboBox<>(discountPlans);
+        */
+
+        javax.swing.JPanel panel = new javax.swing.JPanel(new java.awt.GridLayout(0, 1, 5, 5));
+        panel.add(new javax.swing.JLabel("Account ID:"));
+        panel.add(txtAccountId);
+        panel.add(new javax.swing.JLabel("Staff ID:"));
+        panel.add(txtStaffId);
+        panel.add(new javax.swing.JLabel("Name:"));
+        panel.add(txtName);
+        panel.add(new javax.swing.JLabel("Email:"));
+        panel.add(txtEmail);
+        panel.add(new javax.swing.JLabel("Phone:"));
+        panel.add(txtPhone);
+        panel.add(new javax.swing.JLabel("Role:"));
+        panel.add(comboRole);
+        
+
+        int result = javax.swing.JOptionPane.showConfirmDialog(
+            this,
+            panel,
+            "Add Staff member",
+            javax.swing.JOptionPane.OK_CANCEL_OPTION,
+            javax.swing.JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (result == javax.swing.JOptionPane.OK_OPTION) {
+            String accountId = txtAccountId.getText().trim();
+            String staffId = txtStaffId.getText().trim();
+            String name = txtName.getText().trim();
+            String email = txtEmail.getText().trim();
+            String phone = txtPhone.getText().trim();
+            String role = ((String) comboRole.getSelectedItem()).trim();
+            
+
+            // Empty field validation
+            if (accountId.isEmpty() || staffId.isEmpty() || name.isEmpty() || email.isEmpty() || phone.isEmpty() || role.isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Please fill in all fields.");
+                return;
+            }
+
+            // Account ID validation: must look like ACC001
+            if (!accountId.matches("ACCS\\d+")) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "Account ID must start with ACCS followed by numbers, e.g. ACCS001.");
+                return;
+            }
+            
+            // Account ID validation: must look like S001
+            if (!staffId.matches("SID\\d+")) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "Staff ID must start with SID followed by numbers, e.g. SID001.");
+                return;
+            }
+
+            // Name validation: letters and spaces only, at least 2 chars
+            if (!name.matches("[A-Za-z ]{2,}")) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "Please enter a valid customer name.");
+                return;
+            }
+
+            // Email validation
+            if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "Please enter a valid email address.");
+                return;
+            }
+
+            // Phone validation: 10 to 11 digits only
+            if (!phone.matches("\\d{10,11}")) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "Phone number must contain 10 to 11 digits.");
+                return;
+            }
+
+            
+
+            // Optional: prevent duplicate account IDs
+            javax.swing.table.DefaultTableModel model =
+            (javax.swing.table.DefaultTableModel) jTable1.getModel();
+
+            for (int i = 0; i < model.getRowCount(); i++) {
+                Object existingId = model.getValueAt(i, 0);
+                if (existingId != null && accountId.equalsIgnoreCase(existingId.toString())) {
+                    javax.swing.JOptionPane.showMessageDialog(this,
+                        "Account ID already exists. Please use a unique Account ID.");
+                    return;
+                }
+            }
+
+            // Add row to table
+            model.addRow(new Object[]{
+                accountId,
+                staffId,
+                name,
+                email,
+                phone,
+                role
+            });
+
+            javax.swing.JOptionPane.showMessageDialog(this, "Staff member added successfully.");
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private java.awt.Label CustomerJpanel2;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTable jTable1;
+    private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 }
