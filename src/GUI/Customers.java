@@ -36,6 +36,7 @@ public class Customers extends javax.swing.JPanel {
         jTable1 = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
 
+        setBackground(new java.awt.Color(255, 255, 255));
         setFont(new java.awt.Font("Helvetica Neue", 1, 24)); // NOI18N
         setPreferredSize(new java.awt.Dimension(1000, 853));
 
@@ -45,6 +46,8 @@ public class Customers extends javax.swing.JPanel {
 
         jLabel1.setFont(new java.awt.Font("Helvetica Neue", 1, 36)); // NOI18N
         jLabel1.setText("Customer Management");
+
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel3.setFont(new java.awt.Font("Helvetica Neue", 1, 20)); // NOI18N
         jLabel3.setText("Customer Accounts");
