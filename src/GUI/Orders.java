@@ -314,6 +314,7 @@ public class Orders extends javax.swing.JPanel {
     }
     
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+<<<<<<< Updated upstream
         
         
         java.awt.Window parentWindow = javax.swing.SwingUtilities.getWindowAncestor(this);
@@ -329,6 +330,18 @@ public class Orders extends javax.swing.JPanel {
         dialog.setVisible(true);
         
         
+<<<<<<< HEAD
+=======
+        
+        
+            
+            
+            
+        
+=======
+        // TODO add your handling code here:
+>>>>>>> Stashed changes
+>>>>>>> 11bddaa733a91ac8a169055ea47811001055a7fc
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed

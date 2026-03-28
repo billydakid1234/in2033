@@ -40,7 +40,7 @@ public class Dashboard extends javax.swing.JPanel {
 
         setBackground(new java.awt.Color(255, 255, 255));
 
-        stockPanel1.setBackground(new java.awt.Color(153, 204, 255));
+        stockPanel1.setBackground(new java.awt.Color(255, 255, 255));
         stockPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         lbStock1.setFont(new java.awt.Font("Helvetica Neue", 1, 24)); // NOI18N
@@ -63,7 +63,7 @@ public class Dashboard extends javax.swing.JPanel {
                 .addContainerGap(261, Short.MAX_VALUE))
         );
 
-        salesPanel2.setBackground(new java.awt.Color(204, 255, 204));
+        salesPanel2.setBackground(new java.awt.Color(255, 255, 255));
         salesPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         lbSales2.setFont(new java.awt.Font("Helvetica Neue", 1, 24)); // NOI18N
@@ -86,7 +86,7 @@ public class Dashboard extends javax.swing.JPanel {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        pendingPanel4.setBackground(new java.awt.Color(255, 255, 204));
+        pendingPanel4.setBackground(new java.awt.Color(255, 255, 255));
         pendingPanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         lbPending4.setFont(new java.awt.Font("Helvetica Neue", 1, 24)); // NOI18N
@@ -109,7 +109,7 @@ public class Dashboard extends javax.swing.JPanel {
                 .addContainerGap(263, Short.MAX_VALUE))
         );
 
-        accountPanel3.setBackground(new java.awt.Color(204, 204, 255));
+        accountPanel3.setBackground(new java.awt.Color(255, 255, 255));
         accountPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         lbAccount3.setFont(new java.awt.Font("Helvetica Neue", 1, 24)); // NOI18N
