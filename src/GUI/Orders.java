@@ -50,8 +50,8 @@ public class Orders extends javax.swing.JPanel {
         jLabel1 = new javax.swing.JLabel();
         jPanel6 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
+        AccountStatus = new javax.swing.JLabel();
+        ViewInvoice = new javax.swing.JButton();
         btnPlaceOrder = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
@@ -215,8 +215,8 @@ public class Orders extends javax.swing.JPanel {
         jLabel5.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
         jLabel5.setText("Account Status:");
 
-        jLabel6.setFont(new java.awt.Font("Helvetica Neue", 1, 15)); // NOI18N
-        jLabel6.setText("Normal");
+        AccountStatus.setFont(new java.awt.Font("Helvetica Neue", 1, 15)); // NOI18N
+        AccountStatus.setText("Normal");
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
@@ -226,7 +226,7 @@ public class Orders extends javax.swing.JPanel {
                 .addGap(17, 17, 17)
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(68, 68, 68)
-                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(AccountStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(110, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
@@ -234,18 +234,21 @@ public class Orders extends javax.swing.JPanel {
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(AccountStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel5))
                 .addContainerGap())
         );
 
-        jButton2.setBackground(new java.awt.Color(0, 0, 51));
-        jButton2.setFont(new java.awt.Font("Helvetica Neue", 1, 18)); // NOI18N
-        jButton2.setForeground(new java.awt.Color(255, 255, 255));
-        jButton2.setText("View order invoice");
-        jButton2.addActionListener(this::jButton2ActionPerformed);
+        ViewInvoice.setBackground(new java.awt.Color(0, 0, 51));
+        ViewInvoice.setFont(new java.awt.Font("Helvetica Neue", 0, 24)); // NOI18N
+        ViewInvoice.setForeground(new java.awt.Color(255, 255, 255));
+        ViewInvoice.setText("View order invoice");
+        ViewInvoice.addActionListener(this::ViewInvoiceActionPerformed);
 
-        btnPlaceOrder.setText("jButton1");
+        btnPlaceOrder.setBackground(new java.awt.Color(0, 0, 51));
+        btnPlaceOrder.setFont(new java.awt.Font("Helvetica Neue", 0, 30)); // NOI18N
+        btnPlaceOrder.setForeground(new java.awt.Color(255, 255, 255));
+        btnPlaceOrder.setText("Place New Order");
         btnPlaceOrder.addActionListener(this::btnPlaceOrderActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -253,45 +256,44 @@ public class Orders extends javax.swing.JPanel {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(66, Short.MAX_VALUE)
-                .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 980, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(55, 55, 55))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(65, 65, 65)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(85, 85, 85)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 405, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(lbInfo1)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(75, 75, 75)
-                        .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(22, 22, 22)
-                .addComponent(btnPlaceOrder)
+                    .addComponent(lbInfo1)
+                    .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 405, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 291, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(ViewInvoice, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnPlaceOrder, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(108, 108, 108))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(43, 43, 43)
+                .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 980, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(78, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(34, 34, 34)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lbInfo1)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
-                        .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(41, 41, 41))
+                        .addGap(34, 34, 34)
+                        .addComponent(btnPlaceOrder, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnPlaceOrder))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGap(30, 30, 30)
+                        .addComponent(ViewInvoice, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(39, 39, 39))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(lbInfo1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(29, 29, 29)))
                 .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 563, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(51, 51, 51))
+                .addContainerGap(76, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -306,6 +308,8 @@ public class Orders extends javax.swing.JPanel {
     public void addOrderRow(Object[] row){
         javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) jOrdersTable.getModel();
         model.addRow(row);
+        //AccountStatus.setText("Normal");//change this to test is orders can only be placed when status is normal.
+        //AccountStatus.setText("Suspended");
     }
     
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {                                         
@@ -317,7 +321,7 @@ public class Orders extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField1ActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void ViewInvoiceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ViewInvoiceActionPerformed
         int selectedRow = jOrdersTable.getSelectedRow();
 
         if (selectedRow == -1) {
@@ -326,20 +330,44 @@ public class Orders extends javax.swing.JPanel {
             return;
         }
         
-    }//GEN-LAST:event_jButton2ActionPerformed
+        String orderID = jOrdersTable.getValueAt(selectedRow, 0).toString();
+        String date = jOrdersTable.getValueAt(selectedRow, 1).toString();
+        
+        
+        java.awt.Window parentWindow = javax.swing.SwingUtilities.getWindowAncestor(this);
+
+        InvoiceDialog dialog;
+        if (parentWindow instanceof java.awt.Frame) {
+            dialog = new InvoiceDialog((java.awt.Frame) parentWindow, true, orderID, date);
+        } else {
+            dialog = new InvoiceDialog(null, true, orderID, date);
+        }
+
+        dialog.setLocationRelativeTo(parentWindow);
+        dialog.setVisible(true);
+        
+    }//GEN-LAST:event_ViewInvoiceActionPerformed
 
     private void btnPlaceOrderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlaceOrderActionPerformed
-           java.awt.Window parentWindow = javax.swing.SwingUtilities.getWindowAncestor(this);
+        
+        String status = AccountStatus.getText();
+        
+        if (!status.equalsIgnoreCase("Normal")) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Orders can only be placed when the account status is Normal.");
+            return;
+        }
+        
+        java.awt.Window parentWindow = javax.swing.SwingUtilities.getWindowAncestor(this);
 
-    NewOrder dialog;
-    if (parentWindow instanceof java.awt.Frame) {
-        dialog = new NewOrder((java.awt.Frame) parentWindow, true, this);
-    } else {
-        dialog = new NewOrder(null, true, this);
-    }
+        NewOrder dialog;
+        if (parentWindow instanceof java.awt.Frame) {
+            dialog = new NewOrder((java.awt.Frame) parentWindow, true, this);
+        } else {
+            dialog = new NewOrder(null, true, this);
+        }
 
-    dialog.setLocationRelativeTo(parentWindow);
-    dialog.setVisible(true);
+        dialog.setLocationRelativeTo(parentWindow);
+        dialog.setVisible(true);
 
     }//GEN-LAST:event_btnPlaceOrderActionPerformed
 
@@ -347,14 +375,14 @@ public class Orders extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel AccountStatus;
+    private javax.swing.JButton ViewInvoice;
     private javax.swing.JButton btnPlaceOrder;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JTable jOrdersTable;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
