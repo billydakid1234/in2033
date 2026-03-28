@@ -9,6 +9,13 @@ package GUI;
  * @author LukeBravermanCityUniversity
  */
 public class Reports extends javax.swing.JPanel {
+    private static final Object[][] REPORT_SALES_DATA = {
+        {"INV-1001", "2026-03-28", "Occasional Customer", "Cash", "£18.60"},
+        {"INV-1002", "2026-03-28", "Account Holder", "Card", "£42.24"},
+        {"INV-1003", "2026-03-27", "Occasional Customer", "Card", "£11.04"},
+        {"INV-1004", "2026-03-27", "Account Holder", "Cash", "£37.80"},
+        {"INV-1005", "2026-03-26", "Occasional Customer", "Cash", "£24.48"}
+    };
 
     /**
      * Creates new form Reports
@@ -239,8 +246,82 @@ public class Reports extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        showReportPreviewDialog();
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void showReportPreviewDialog() {
+        javax.swing.JDialog dialog = new javax.swing.JDialog(
+            (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this),
+            "Sales Report Preview",
+            true
+        );
+        dialog.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+
+        javax.swing.table.DefaultTableModel reportModel = new javax.swing.table.DefaultTableModel(
+            REPORT_SALES_DATA,
+            new String[] {"Invoice ID", "Date", "Customer Type", "Payment Method", "Sale Total"}
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        javax.swing.JTable reportTable = new javax.swing.JTable(reportModel);
+        reportTable.setRowHeight(24);
+        reportTable.getTableHeader().setReorderingAllowed(false);
+
+        javax.swing.JScrollPane scrollPane = new javax.swing.JScrollPane(reportTable);
+        scrollPane.setPreferredSize(new java.awt.Dimension(760, 220));
+
+        javax.swing.JTextArea summaryArea = new javax.swing.JTextArea(buildReportSummary());
+        summaryArea.setEditable(false);
+        summaryArea.setOpaque(false);
+        summaryArea.setFont(new java.awt.Font("Monospaced", java.awt.Font.PLAIN, 13));
+
+        javax.swing.JButton printButton = new javax.swing.JButton("Print");
+        printButton.addActionListener(e -> javax.swing.JOptionPane.showMessageDialog(
+            dialog,
+            "Report sent to print queue.",
+            "Print Report",
+            javax.swing.JOptionPane.INFORMATION_MESSAGE
+        ));
+
+        javax.swing.JButton exportButton = new javax.swing.JButton("Export");
+        exportButton.addActionListener(e -> javax.swing.JOptionPane.showMessageDialog(
+            dialog,
+            "Report exported successfully.",
+            "Export Report",
+            javax.swing.JOptionPane.INFORMATION_MESSAGE
+        ));
+
+        javax.swing.JButton closeButton = new javax.swing.JButton("Close");
+        closeButton.addActionListener(e -> dialog.dispose());
+
+        javax.swing.JPanel buttonPanel = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
+        buttonPanel.add(exportButton);
+        buttonPanel.add(printButton);
+        buttonPanel.add(closeButton);
+
+        javax.swing.JPanel contentPanel = new javax.swing.JPanel(new java.awt.BorderLayout(0, 12));
+        contentPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(16, 16, 16, 16));
+        contentPanel.add(scrollPane, java.awt.BorderLayout.CENTER);
+        contentPanel.add(summaryArea, java.awt.BorderLayout.NORTH);
+        contentPanel.add(buttonPanel, java.awt.BorderLayout.SOUTH);
+
+        dialog.setContentPane(contentPanel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
+    private String buildReportSummary() {
+        return "Sales Report\n"
+            + "Period: 26 Mar 2026 - 28 Mar 2026\n"
+            + "Total Sales: £134.16\n"
+            + "Transactions: 5\n"
+            + "Payment Breakdown: Cash 3, Card 2";
+    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
