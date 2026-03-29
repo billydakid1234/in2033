@@ -10,13 +10,20 @@ package GUI;
  */
 public class Orders extends javax.swing.JPanel {
 
+    private static int orderCounter = 1;
+    
+    
     /**
      * Creates new form Orders
      */
     public Orders() {
         initComponents();
+        
+        
     }
 
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -30,7 +37,7 @@ public class Orders extends javax.swing.JPanel {
         jTabbedPane2 = new javax.swing.JTabbedPane();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        jOrdersTable = new javax.swing.JTable();
         lbInfo2 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
@@ -40,8 +47,12 @@ public class Orders extends javax.swing.JPanel {
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+        jPanel6 = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
+        btnPlaceOrder = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -51,15 +62,9 @@ public class Orders extends javax.swing.JPanel {
 
         jTabbedPane2.setBackground(new java.awt.Color(239, 239, 239));
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        jOrdersTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+
             },
             new String [] {
                 "Order ID", "Date", "Status", "Items", "Quantity", "Total cost"
@@ -73,7 +78,7 @@ public class Orders extends javax.swing.JPanel {
                 return types [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(jOrdersTable);
 
         lbInfo2.setFont(new java.awt.Font("Helvetica Neue", 1, 20)); // NOI18N
         lbInfo2.setForeground(new java.awt.Color(102, 102, 102));
@@ -204,98 +209,164 @@ public class Orders extends javax.swing.JPanel {
 
         jTabbedPane2.addTab("Account Balance", jPanel5);
 
-        jButton1.setBackground(new java.awt.Color(0, 0, 51));
-        jButton1.setFont(new java.awt.Font("Helvetica Neue", 0, 24)); // NOI18N
-        jButton1.setForeground(new java.awt.Color(255, 255, 255));
-        jButton1.setText("+   Place New Order");
-        jButton1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        jButton1.addActionListener(this::jButton1ActionPerformed);
-
         jLabel1.setFont(new java.awt.Font("Helvetica Neue", 1, 36)); // NOI18N
         jLabel1.setText("Orders to InfoPharma");
+
+        jLabel5.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
+        jLabel5.setText("Account Status:");
+
+        jLabel6.setFont(new java.awt.Font("Helvetica Neue", 1, 15)); // NOI18N
+        jLabel6.setText("Normal");
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGap(17, 17, 17)
+                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(68, 68, 68)
+                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(110, Short.MAX_VALUE))
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5))
+                .addContainerGap())
+        );
+
+        jButton2.setBackground(new java.awt.Color(0, 0, 51));
+        jButton2.setFont(new java.awt.Font("Helvetica Neue", 1, 18)); // NOI18N
+        jButton2.setForeground(new java.awt.Color(255, 255, 255));
+        jButton2.setText("View order invoice");
+        jButton2.addActionListener(this::jButton2ActionPerformed);
+
+        btnPlaceOrder.setBackground(new java.awt.Color(0, 0, 51));
+        btnPlaceOrder.setFont(new java.awt.Font("Helvetica Neue", 1, 18)); // NOI18N
+        btnPlaceOrder.setForeground(new java.awt.Color(255, 255, 255));
+        btnPlaceOrder.setText("+ Place Order");
+        btnPlaceOrder.addActionListener(this::btnPlaceOrderActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(57, 57, 57)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(66, Short.MAX_VALUE)
                 .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 980, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(78, Short.MAX_VALUE))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(85, 85, 85)
+                .addGap(55, 55, 55))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lbInfo1)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 405, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(85, 85, 85)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 405, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lbInfo1)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(75, 75, 75)
+                        .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(32, 32, 32)
+                        .addComponent(btnPlaceOrder)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 282, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(106, 106, 106))
+                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 291, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(108, 108, 108))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addGap(34, 34, 34)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lbInfo1)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(72, 72, 72)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lbInfo1))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
+                        .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(41, 41, 41))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(89, 89, 89)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(72, 72, 72)
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnPlaceOrder, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 563, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(56, Short.MAX_VALUE))
+                .addGap(51, 51, 51))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-<<<<<<< Updated upstream
-        
-        
-        java.awt.Window parentWindow = javax.swing.SwingUtilities.getWindowAncestor(this);
 
-        NewOrder dialog;
-        if (parentWindow instanceof java.awt.Frame) {
-            dialog = new NewOrder((java.awt.Frame) parentWindow, true);
-        } else {
-            dialog = new NewOrder(null, true);
-        }
+    
+    public static String generateOrderID(){
+        return String.format("ORD%05d", orderCounter++);
+    }
+    
+    
+    
+    public void addOrderRow(Object[] row){
+        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) jOrdersTable.getModel();
+        model.addRow(row);
+    }
+    
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {                                         
 
-        dialog.setLocationRelativeTo(parentWindow);
-        dialog.setVisible(true);
-        
-        
-        
-        
-            
-            
-            
-        
-=======
-        // TODO add your handling code here:
->>>>>>> Stashed changes
-    }//GEN-LAST:event_jButton1ActionPerformed
+
+    }                                        
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField1ActionPerformed
 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        int selectedRow = jOrdersTable.getSelectedRow();
+
+        if (selectedRow == -1) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "Please select an order to view the invoice of.");
+            return;
+        }
+        
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void btnPlaceOrderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlaceOrderActionPerformed
+           java.awt.Window parentWindow = javax.swing.SwingUtilities.getWindowAncestor(this);
+
+    NewOrder dialog;
+    if (parentWindow instanceof java.awt.Frame) {
+        dialog = new NewOrder((java.awt.Frame) parentWindow, true, this);
+    } else {
+        dialog = new NewOrder(null, true, this);
+    }
+
+    dialog.setLocationRelativeTo(parentWindow);
+    dialog.setVisible(true);
+
+    }//GEN-LAST:event_btnPlaceOrderActionPerformed
+
+
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton btnPlaceOrder;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JTable jOrdersTable;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane2;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JLabel lbInfo1;
     private javax.swing.JLabel lbInfo2;

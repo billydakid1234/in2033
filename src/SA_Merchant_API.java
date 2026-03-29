@@ -1,5 +1,5 @@
 
-//public interface SA_Merchant_API{ 
+public interface SA_Merchant_API{ 
 
     /** 
     * 
@@ -19,4 +19,4 @@
     
     //abstract Invoice[] getDuePayments(); 
 
-//}
+}

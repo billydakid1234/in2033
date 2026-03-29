@@ -9,12 +9,24 @@ package GUI;
  * @author LukeBravermanCityUniversity
  */
 public class Sales extends javax.swing.JPanel {
+    private static final double VAT_RATE = 0.20;
+    private static final double ACCOUNT_HOLDER_DISCOUNT_RATE = 0.10;
+    private static final String[][] PRODUCT_CATALOG = {
+        {"P001", "Paracetamol 500mg", "2.50"},
+        {"P002", "Ibuprofen 200mg", "4.20"},
+        {"P003", "Cough Syrup", "6.80"},
+        {"P004", "Vitamin C Tablets", "8.10"}
+    };
+    private boolean cardDetailsCaptured;
+    private String cardSummary = "";
 
     /**
      * Creates new form Sales
      */
     public Sales() {
         initComponents();
+        makeContentScrollable();
+        initialiseSalesPage();
     }
 
     /**
@@ -46,21 +58,27 @@ public class Sales extends javax.swing.JPanel {
         jTextField1 = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
         jPanel2 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         jComboBox2 = new javax.swing.JComboBox<>();
         jLabel10 = new javax.swing.JLabel();
         jComboBox5 = new javax.swing.JComboBox<>();
+        jLabel11 = new javax.swing.JLabel();
+        jTextField2 = new javax.swing.JTextField();
         jPanel4 = new javax.swing.JPanel();
         jLabel18 = new javax.swing.JLabel();
         jLabel19 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
         jLabel23 = new javax.swing.JLabel();
         jLabel24 = new javax.swing.JLabel();
         jButton2 = new javax.swing.JButton();
         jLabel20 = new javax.swing.JLabel();
         jLabel21 = new javax.swing.JLabel();
         jLabel22 = new javax.swing.JLabel();
+        jLabel25 = new javax.swing.JLabel();
 
         jPanel3.setBackground(new java.awt.Color(252, 252, 252));
         jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(220, 220, 220)));
@@ -167,12 +185,30 @@ public class Sales extends javax.swing.JPanel {
 
         jLabel7.setBackground(new java.awt.Color(255, 255, 255));
         jLabel7.setForeground(new java.awt.Color(204, 204, 204));
-        jLabel7.setText("No items added yet. Select products above to add to sale. ");
+        jLabel7.setText("No items added yet. Added products will appear in the table below.");
 
         jButton1.setBackground(new java.awt.Color(20, 20, 20));
         jButton1.setForeground(new java.awt.Color(252, 252, 252));
         jButton1.setLabel("+ Add");
         jButton1.addActionListener(this::jButton1ActionPerformed);
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Product ID", "Name", "Quantity", "Unit Price", "Total"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit[columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(jTable1);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -196,8 +232,10 @@ public class Sales extends javax.swing.JPanel {
                                 .addGap(91, 91, 91)
                                 .addComponent(jButton1))))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(134, 134, 134)
-                        .addComponent(jLabel7)))
+                        .addGap(24, 24, 24)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel7)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 733, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -218,7 +256,9 @@ public class Sales extends javax.swing.JPanel {
                     .addComponent(jButton1))
                 .addGap(31, 31, 31)
                 .addComponent(jLabel7)
-                .addContainerGap(29, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(24, Short.MAX_VALUE))
         );
 
         jPanel2.setBackground(new java.awt.Color(252, 252, 252));
@@ -239,6 +279,11 @@ public class Sales extends javax.swing.JPanel {
         jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         jComboBox5.addActionListener(this::jComboBox5ActionPerformed);
 
+        jLabel11.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        jLabel11.setText("Account ID");
+
+        jTextField2.addActionListener(this::jTextField2ActionPerformed);
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -250,7 +295,9 @@ public class Sales extends javax.swing.JPanel {
                     .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel9)
                     .addComponent(jLabel8)
-                    .addComponent(jLabel10))
+                    .addComponent(jLabel10)
+                    .addComponent(jLabel11)
+                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(654, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
@@ -266,6 +313,10 @@ public class Sales extends javax.swing.JPanel {
                 .addComponent(jLabel10)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
+                .addComponent(jLabel11)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(43, Short.MAX_VALUE))
         );
 
@@ -276,7 +327,10 @@ public class Sales extends javax.swing.JPanel {
         jLabel18.setText("Sale Summary");
 
         jLabel19.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        jLabel19.setText("£10");
+        jLabel19.setText("£0.00");
+
+        jLabel12.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        jLabel12.setText("Discount:");
 
         jLabel23.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         jLabel23.setText("Total: ");
@@ -293,10 +347,13 @@ public class Sales extends javax.swing.JPanel {
         jLabel20.setText("Subtotal:");
 
         jLabel21.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        jLabel21.setText("£2");
+        jLabel21.setText("£0.00");
 
         jLabel22.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        jLabel22.setText("£12");
+        jLabel22.setText("£0.00");
+
+        jLabel25.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        jLabel25.setText("£0.00");
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -319,6 +376,10 @@ public class Sales extends javax.swing.JPanel {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jLabel21))
                             .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel25))
+                            .addGroup(jPanel4Layout.createSequentialGroup()
                                 .addComponent(jLabel18)
                                 .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(jPanel4Layout.createSequentialGroup()
@@ -340,6 +401,10 @@ public class Sales extends javax.swing.JPanel {
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel24)
                     .addComponent(jLabel21))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel12)
+                    .addComponent(jLabel25))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel23)
@@ -391,7 +456,7 @@ public class Sales extends javax.swing.JPanel {
     }//GEN-LAST:event_jTextField1ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        addSelectedItemToSale();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jComboBox3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox3ActionPerformed
@@ -407,16 +472,336 @@ public class Sales extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
-        // TODO add your handling code here:
+        updateAccountIdVisibility();
+        updateSummary();
     }//GEN-LAST:event_jComboBox2ActionPerformed
 
     private void jComboBox5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox5ActionPerformed
-        // TODO add your handling code here:
+        handlePaymentMethodSelection();
     }//GEN-LAST:event_jComboBox5ActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
         // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField2ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        completeSale();
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void makeContentScrollable() {
+        removeAll();
+        setLayout(new java.awt.BorderLayout());
+
+        javax.swing.JPanel contentPanel = new javax.swing.JPanel();
+        contentPanel.setBackground(getBackground());
+        contentPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(23, 29, 21, 29));
+        contentPanel.setLayout(new javax.swing.BoxLayout(contentPanel, javax.swing.BoxLayout.Y_AXIS));
+
+        jLabel1.setAlignmentX(LEFT_ALIGNMENT);
+        jLabel2.setAlignmentX(LEFT_ALIGNMENT);
+        jPanel1.setAlignmentX(LEFT_ALIGNMENT);
+        jPanel2.setAlignmentX(LEFT_ALIGNMENT);
+        jPanel4.setAlignmentX(LEFT_ALIGNMENT);
+
+        contentPanel.add(jLabel1);
+        contentPanel.add(javax.swing.Box.createVerticalStrut(6));
+        contentPanel.add(jLabel2);
+        contentPanel.add(javax.swing.Box.createVerticalStrut(50));
+        contentPanel.add(jPanel1);
+        contentPanel.add(javax.swing.Box.createVerticalStrut(29));
+        contentPanel.add(jPanel2);
+        contentPanel.add(javax.swing.Box.createVerticalStrut(18));
+        contentPanel.add(jPanel4);
+
+        javax.swing.JScrollPane scrollPane = new javax.swing.JScrollPane(contentPanel);
+        scrollPane.setBorder(null);
+        scrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+        add(scrollPane, java.awt.BorderLayout.CENTER);
+        revalidate();
+        repaint();
+    }
+
+    private void initialiseSalesPage() {
+        jComboBox1.removeAllItems();
+        for (String[] product : PRODUCT_CATALOG) {
+            jComboBox1.addItem(product[0] + " - " + product[1]);
+        }
+
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] {
+            "Occasional Customer", "Account Holder"
+        }));
+        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] {
+            "Cash", "Card"
+        }));
+
+        jTextField2.setText("");
+        cardDetailsCaptured = false;
+        cardSummary = "";
+        jTable1.setRowHeight(24);
+        jTable1.getTableHeader().setReorderingAllowed(false);
+        updateAccountIdVisibility();
+        updateSummary();
+    }
+
+    private void addSelectedItemToSale() {
+        int selectedIndex = jComboBox1.getSelectedIndex();
+        if (selectedIndex < 0) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Select a product to add.");
+            return;
+        }
+
+        int quantity;
+        try {
+            quantity = Integer.parseInt(jTextField1.getText().trim());
+        } catch (NumberFormatException ex) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Enter a valid quantity.");
+            return;
+        }
+
+        if (quantity <= 0) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Quantity must be greater than 0.");
+            return;
+        }
+
+        String[] product = PRODUCT_CATALOG[selectedIndex];
+        double unitPrice = Double.parseDouble(product[2]);
+        double lineTotal = unitPrice * quantity;
+        javax.swing.table.DefaultTableModel model =
+            (javax.swing.table.DefaultTableModel) jTable1.getModel();
+
+        int existingRow = findRowByProductId(model, product[0]);
+        if (existingRow >= 0) {
+            int updatedQuantity = ((Number) model.getValueAt(existingRow, 2)).intValue() + quantity;
+            model.setValueAt(updatedQuantity, existingRow, 2);
+            model.setValueAt(formatCurrency(unitPrice * updatedQuantity), existingRow, 4);
+        } else {
+            model.addRow(new Object[] {
+                product[0],
+                product[1],
+                quantity,
+                formatCurrency(unitPrice),
+                formatCurrency(lineTotal)
+            });
+        }
+
+        jTextField1.setText("1");
+        jLabel7.setText(model.getRowCount() + " item(s) recorded in this sale.");
+        updateSummary();
+    }
+
+    private int findRowByProductId(javax.swing.table.DefaultTableModel model, String productId) {
+        for (int row = 0; row < model.getRowCount(); row++) {
+            if (productId.equals(String.valueOf(model.getValueAt(row, 0)))) {
+                return row;
+            }
+        }
+        return -1;
+    }
+
+    private void updateSummary() {
+        javax.swing.table.DefaultTableModel model =
+            (javax.swing.table.DefaultTableModel) jTable1.getModel();
+        double subtotal = 0.0;
+
+        for (int row = 0; row < model.getRowCount(); row++) {
+            subtotal += parseCurrency(String.valueOf(model.getValueAt(row, 4)));
+        }
+
+        double discount = calculateDiscount(subtotal);
+        double discountedSubtotal = subtotal - discount;
+        double vat = discountedSubtotal * VAT_RATE;
+        double total = discountedSubtotal + vat;
+
+        jLabel19.setText(formatCurrency(subtotal));
+        jLabel25.setText(formatCurrency(discount));
+        jLabel21.setText(formatCurrency(vat));
+        jLabel22.setText(formatCurrency(total));
+
+        if (model.getRowCount() == 0) {
+            jLabel7.setText("No items added yet. Added products will appear in the table below.");
+        }
+    }
+
+    private double calculateDiscount(double subtotal) {
+        if ("Account Holder".equals(String.valueOf(jComboBox2.getSelectedItem()))) {
+            return subtotal * ACCOUNT_HOLDER_DISCOUNT_RATE;
+        }
+        return 0.0;
+    }
+
+    private void completeSale() {
+        javax.swing.table.DefaultTableModel model =
+            (javax.swing.table.DefaultTableModel) jTable1.getModel();
+        if (model.getRowCount() == 0) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Add at least one item before completing the sale.");
+            return;
+        }
+
+        if ("Account Holder".equals(String.valueOf(jComboBox2.getSelectedItem()))
+                && jTextField2.getText().trim().isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Enter an account ID for account holder sales.");
+            return;
+        }
+
+        if ("Card".equals(String.valueOf(jComboBox5.getSelectedItem())) && !cardDetailsCaptured) {
+            if (!captureCardDetails()) {
+                return;
+            }
+        }
+
+        showRetailInvoice();
+
+        model.setRowCount(0);
+        jTextField1.setText("1");
+        jTextField2.setText("");
+        jComboBox2.setSelectedIndex(0);
+        jComboBox5.setSelectedIndex(0);
+        cardDetailsCaptured = false;
+        cardSummary = "";
+        updateSummary();
+    }
+
+    private void showRetailInvoice() {
+        javax.swing.table.DefaultTableModel sourceModel =
+            (javax.swing.table.DefaultTableModel) jTable1.getModel();
+        javax.swing.table.DefaultTableModel invoiceModel = new javax.swing.table.DefaultTableModel(
+            new Object[][] {},
+            new String[] {"Product ID", "Name", "Quantity", "Unit Price", "Total"}
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        for (int row = 0; row < sourceModel.getRowCount(); row++) {
+            invoiceModel.addRow(new Object[] {
+                sourceModel.getValueAt(row, 0),
+                sourceModel.getValueAt(row, 1),
+                sourceModel.getValueAt(row, 2),
+                sourceModel.getValueAt(row, 3),
+                sourceModel.getValueAt(row, 4)
+            });
+        }
+
+        javax.swing.JTable invoiceTable = new javax.swing.JTable(invoiceModel);
+        invoiceTable.setRowHeight(22);
+        invoiceTable.getTableHeader().setReorderingAllowed(false);
+        invoiceTable.setEnabled(false);
+
+        javax.swing.JScrollPane tableScrollPane = new javax.swing.JScrollPane(invoiceTable);
+        tableScrollPane.setPreferredSize(new java.awt.Dimension(620, 180));
+
+        javax.swing.JTextArea summaryArea = new javax.swing.JTextArea(buildInvoiceSummary());
+        summaryArea.setEditable(false);
+        summaryArea.setOpaque(false);
+        summaryArea.setFont(new java.awt.Font("Monospaced", java.awt.Font.PLAIN, 13));
+
+        javax.swing.JPanel panel = new javax.swing.JPanel(new java.awt.BorderLayout(0, 12));
+        panel.add(tableScrollPane, java.awt.BorderLayout.CENTER);
+        panel.add(summaryArea, java.awt.BorderLayout.SOUTH);
+
+        javax.swing.JOptionPane.showMessageDialog(
+            this,
+            panel,
+            "Retail Invoice",
+            javax.swing.JOptionPane.INFORMATION_MESSAGE
+        );
+    }
+
+    private String buildInvoiceSummary() {
+        String customerType = String.valueOf(jComboBox2.getSelectedItem());
+        String paymentMethod = String.valueOf(jComboBox5.getSelectedItem());
+        String paymentDetails = cardSummary.isEmpty() ? paymentMethod : paymentMethod + " (" + cardSummary + ")";
+        String accountId = jTextField2.getText().trim().isEmpty() ? "N/A" : jTextField2.getText().trim();
+
+        StringBuilder summary = new StringBuilder();
+        summary.append("Customer Type: ").append(customerType).append('\n');
+        if ("Account Holder".equals(customerType)) {
+            summary.append("Account ID: ").append(accountId).append('\n');
+        }
+        summary.append("Payment Method: ").append(paymentDetails).append('\n');
+        summary.append("Subtotal: ").append(jLabel19.getText()).append('\n');
+        summary.append("Discount: ").append(jLabel25.getText()).append('\n');
+        summary.append("VAT: ").append(jLabel21.getText()).append('\n');
+        summary.append("Total: ").append(jLabel22.getText());
+        return summary.toString();
+    }
+
+    private void updateAccountIdVisibility() {
+        boolean isAccountHolder = "Account Holder".equals(String.valueOf(jComboBox2.getSelectedItem()));
+        jLabel11.setVisible(isAccountHolder);
+        jTextField2.setVisible(isAccountHolder);
+        if (!isAccountHolder) {
+            jTextField2.setText("");
+        }
+        revalidate();
+        repaint();
+    }
+
+    private void handlePaymentMethodSelection() {
+        if ("Card".equals(String.valueOf(jComboBox5.getSelectedItem()))) {
+            if (!captureCardDetails()) {
+                jComboBox5.setSelectedItem("Cash");
+            }
+        } else {
+            cardDetailsCaptured = false;
+            cardSummary = "";
+        }
+    }
+
+    private boolean captureCardDetails() {
+        javax.swing.JTextField cardholderField = new javax.swing.JTextField();
+        javax.swing.JTextField cardNumberField = new javax.swing.JTextField();
+        javax.swing.JTextField expiryField = new javax.swing.JTextField();
+
+        javax.swing.JPanel panel = new javax.swing.JPanel(new java.awt.GridLayout(0, 1, 5, 5));
+        panel.add(new javax.swing.JLabel("Cardholder Name:"));
+        panel.add(cardholderField);
+        panel.add(new javax.swing.JLabel("Card Number:"));
+        panel.add(cardNumberField);
+        panel.add(new javax.swing.JLabel("Expiry (MM/YY):"));
+        panel.add(expiryField);
+
+        int result = javax.swing.JOptionPane.showConfirmDialog(
+            this,
+            panel,
+            "Enter Card Details",
+            javax.swing.JOptionPane.OK_CANCEL_OPTION,
+            javax.swing.JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (result != javax.swing.JOptionPane.OK_OPTION) {
+            return false;
+        }
+
+        String cardholder = cardholderField.getText().trim();
+        String cardNumber = cardNumberField.getText().replaceAll("\\s+", "");
+        String expiry = expiryField.getText().trim();
+
+        if (cardholder.isEmpty() || expiry.isEmpty() || !cardNumber.matches("\\d{4,16}")) {
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Enter valid card details. Use digits only for the card number."
+            );
+            return false;
+        }
+
+        String lastFour = cardNumber.substring(cardNumber.length() - 4);
+        cardDetailsCaptured = true;
+        cardSummary = "ending " + lastFour;
+        return true;
+    }
+
+    private String formatCurrency(double value) {
+        return String.format("£%.2f", value);
+    }
+
+    private double parseCurrency(String value) {
+        return Double.parseDouble(value.replace("£", "").trim());
+    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -429,6 +814,8 @@ public class Sales extends javax.swing.JPanel {
     private javax.swing.JComboBox<String> jComboBox5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
@@ -442,6 +829,7 @@ public class Sales extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
+    private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -453,7 +841,10 @@ public class Sales extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     // End of variables declaration//GEN-END:variables
 }
