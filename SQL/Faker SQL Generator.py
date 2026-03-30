@@ -118,21 +118,26 @@ for product_id in range(1, NUM_PRODUCTS + 1):
 for _ in range(NUM_CUSTOMERS):
     firstname = fake.first_name()
     surname = fake.last_name()
-    dob = fake.date_of_birth(minimum_age=18, maximum_age=90)
+    dob = fake.date_of_birth(minimum_age=18, maximum_age=65)
     email = fake.email()
-    phone = fake.phone_number()[:30]
-    house_number = random.randint(1, 250)
-    postcode = fake.postcode()[:10]
+    phone = fake.phone_number()
+    house_number = random.randint(1, 150)
+    postcode = fake.postcode()
+
     account_holder = random.choice([True, False])
 
     if account_holder:
-        credit_limit = money(100.00, 2000.00)
-        outstanding_balance = money(0.00, credit_limit)
+        credit_limit = random.choice([250, 500, 750, 1000, 1500])
+        outstanding_balance = round(random.uniform(0, credit_limit * 0.8), 2)
     else:
         credit_limit = 0.00
         outstanding_balance = 0.00
 
-    account_status = random.choice(["ACTIVE", "ACTIVE", "ACTIVE", "SUSPENDED"])
+    account_status = random.choices(
+        ['ACTIVE', 'SUSPENDED', 'CLOSED'],
+        weights=[85, 10, 5]
+    )[0]
+
     customers.append((
         firstname, surname, dob, email, phone, house_number, postcode,
         account_holder, credit_limit, outstanding_balance, account_status

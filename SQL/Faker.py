@@ -1,38 +1,41 @@
 # coding=utf-8
 from faker import Faker
 import random
-import os
 
 fake = Faker('en_GB')
 
-print("Saving to:", os.getcwd())
-
-def esc(val):
-    return str(val).replace("'", "''")
-
 rows = []
 
-for i in range(1, 1001):
-    username = esc(fake.user_name())
-    password_hash = fake.sha256()
-    role_id = random.randint(1, 3)
+for i in range(1000):
+    firstname = fake.first_name()
+    surname = fake.last_name()
+    dob = fake.date_of_birth(minimum_age=18, maximum_age=65)
+    email = fake.email()
+    phone = fake.phone_number()
+    house_number = random.randint(1, 150)
+    postcode = fake.postcode()
 
-    created_at = fake.date_time_between(
-        start_date='-2y',
-        end_date='now'
-    ).strftime('%Y-%m-%d %H:%M:%S')
+    account_holder = random.choice([True, False])
 
-    sql_line = (
-        "INSERT INTO ca_users (user_id, username, password_hash, role_id, created_at) "
-        f"VALUES ({i}, '{username}', '{password_hash}', {role_id}, '{created_at}');"
-    )
+    if account_holder:
+        credit_limit = random.choice([250, 500, 750, 1000, 1500])
+        outstanding_balance = round(random.uniform(0, credit_limit * 0.8), 2)
+    else:
+        credit_limit = 0.00
+        outstanding_balance = 0.00
 
-    rows.append(sql_line)
+    account_status = random.choices(
+        ['ACTIVE', 'SUSPENDED', 'CLOSED'],
+        weights=[85, 10, 5]
+    )[0]
 
-# FORCE Desktop save
-file_path = "/Users/ben/Desktop/users_insert.sql"
+    row = f"('{firstname}','{surname}','{dob}','{email}','{phone}',{house_number},'{postcode}',{str(account_holder).upper()},{credit_limit},{outstanding_balance},'{account_status}')"
+    rows.append(row)
 
-with open(file_path, "w") as f:
-    f.write("\n".join(rows))
+sql = "INSERT INTO ca_customers (firstname, surname, dob, email, phone, houseNumber, postcode, account_holder, credit_limit, outstanding_balance, account_status)\nVALUES\n"
+sql += ",\n".join(rows) + ";"
 
-print("✅ File saved at:", file_path)
+with open("customers_insert.sql", "w") as f:
+    f.write(sql)
+
+print("✅ Generated 100 realistic customers into customers_insert.sql")
