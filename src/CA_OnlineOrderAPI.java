@@ -11,6 +11,10 @@ public interface CA_OnlineOrderAPI {
 
     boolean payByCard(String orderID, String cardNumber, String expiry);
 
+    boolean payByCash(String orderID, double amount);
+
+    boolean payByCredit(String orderID, int customerID, double amount);
+
     String generateReceipt(String orderID);
 
     String getOrderStatus(String orderID);
