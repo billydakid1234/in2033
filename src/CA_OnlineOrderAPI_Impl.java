@@ -137,98 +137,33 @@ public class CA_OnlineOrderAPI_Impl implements CA_OnlineOrderAPI {
     }
 
     /**
-     * Pay by card payment in db
+     * PAY USING CARD moved to merchant api
      */
-    @Override
     public boolean payByCard(String orderID, String cardNumber, String expiry) {
 
-        try {
-            // Check order exists
-            String check = "SELECT online_order_id FROM ca_online_orders WHERE online_order_id = ?";
-            PreparedStatement psCheck = conn.prepareStatement(check);
-            psCheck.setString(1, orderID);
+        double total = calculateOrderTotal(orderID);
 
-            ResultSet rs = psCheck.executeQuery();
-
-            if (!rs.next()) {
-                System.out.println("Payment failed: order not found");
-                return false;
-            }
-
-            // Basic validation
-            if (cardNumber.length() < 8) {
-                System.out.println("Payment failed: invalid card");
-                return false;
-            }
-
-            // Insert payment record
-            String sql = "INSERT INTO ca_payments (payment_id, sale_id, payment_method, amount) VALUES (?, NULL, ?, ?)";
-
-            PreparedStatement ps = conn.prepareStatement(sql);
-
-            ps.setInt(1, (int)(Math.random() * 100000)); // TEMP ID
-            ps.setString(2, "CARD");
-            ps.setDouble(3, 0.0); // you can calculate real total later
-
-            ps.executeUpdate();
-
-            System.out.println("Payment successful for order: " + orderID);
-            return true;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return false;
+        return merchantApi.processCardPayment(orderID, cardNumber, expiry, total);
     }
 
     /**
-     * Pay by cash
-     * Used mainly for non-account customers
+     * PAY USING CASH moved to merchant api
      */
-    @Override
-    public boolean payByCash(String orderID, double amount) {
+    public boolean payByCash(String orderID) {
 
-        try {
-            // check order exists
-            String check = "SELECT online_order_id FROM ca_online_orders WHERE online_order_id = ?";
-            PreparedStatement psCheck = conn.prepareStatement(check);
-            psCheck.setString(1, orderID);
+        double total = calculateOrderTotal(orderID);
 
-            ResultSet rs = psCheck.executeQuery();
-
-            if (!rs.next()) {
-                System.out.println("Cash payment failed: order not found");
-                return false;
-            }
-
-            //insert payment
-            String sql = "INSERT INTO ca_payments (payment_id, payment_method, amount) VALUES (?, ?, ?)";
-            PreparedStatement ps = conn.prepareStatement(sql);
-
-            ps.setInt(1, (int)(Math.random() * 100000)); // TEMP
-            ps.setString(2, "CASH");
-            ps.setDouble(3, amount);
-
-            ps.executeUpdate();
-
-            System.out.println("Cash payment successful for order: " + orderID);
-            return true;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return false;
+        return merchantApi.processCashPayment(orderID, total);
     }
 
     /**
-     * pay using customer credit account
+     * PAY USING CREDIT ACCOUNT moved to merchant api
      */
-    @Override
-    public boolean payByCredit(String orderID, int customerID, double amount) {
-        // Delegate credit payment processing to Merchant API for limit monitoring
-        return merchantApi.processCreditPayment(customerID, amount);
+    public boolean payByCredit(String orderID, int customerID) {
+
+        double total = calculateOrderTotal(orderID);
+
+        return merchantApi.processCreditPayment(customerID, total);
     }
 
     /**
@@ -311,5 +246,17 @@ public class CA_OnlineOrderAPI_Impl implements CA_OnlineOrderAPI {
      */
     public String createOrder() {
         return ordApi.newOrder(); // already inserts into DB
+    }
+
+    @Override
+    public boolean payByCash(String orderID, double amount) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'payByCash'");
+    }
+
+    @Override
+    public boolean payByCredit(String orderID, int customerID, double amount) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'payByCredit'");
     }
 }

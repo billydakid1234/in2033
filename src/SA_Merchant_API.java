@@ -10,6 +10,10 @@ public interface SA_Merchant_API{
     
     boolean processCreditPayment(int customerID, double amount);
 
+    boolean processCardPayment(String orderID, String cardNumber, String expiry, double amount);
+
+    boolean processCashPayment(String orderID, double amount);
+
     boolean autoSuspendAccount(int customerID);
 
     boolean autoMoveToDefault(int customerID);

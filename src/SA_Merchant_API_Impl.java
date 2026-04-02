@@ -71,6 +71,91 @@ public class SA_Merchant_API_Impl implements SA_Merchant_API {
 
         return false;
     }
+    /**
+     * Pay by card payment in db
+     */
+    @Override
+    public boolean processCardPayment(String orderID, String cardNumber, String expiry, double amount) {
+
+        try {
+            // Check order exists
+            String check = "SELECT online_order_id FROM ca_online_orders WHERE online_order_id = ?";
+            PreparedStatement psCheck = conn.prepareStatement(check);
+            psCheck.setString(1, orderID);
+
+            ResultSet rs = psCheck.executeQuery();
+
+            if (!rs.next()) {
+                System.out.println("Payment failed: order not found");
+                return false;
+            }
+
+            // Basic validation
+            if (cardNumber.length() < 8) {
+                System.out.println("Payment failed: invalid card");
+                return false;
+            }
+
+            // Insert payment record
+            String sql = "INSERT INTO ca_payments (payment_id, sale_id, payment_method, amount) VALUES (?, NULL, ?, ?)";
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1, (int)(Math.random() * 100000)); // TEMP ID
+            ps.setString(2, "CARD");
+            ps.setDouble(3, 0.0); // you can calculate real total later
+
+            ps.executeUpdate();
+
+            System.out.println("Payment successful for order: " + orderID);
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    /**
+     * Pay by cash
+     * Used mainly for non-account customers
+     */
+    @Override
+    public boolean processCashPayment(String orderID, double amount) {
+
+        try {
+            // check order exists
+            String check = "SELECT online_order_id FROM ca_online_orders WHERE online_order_id = ?";
+            PreparedStatement psCheck = conn.prepareStatement(check);
+            psCheck.setString(1, orderID);
+
+            ResultSet rs = psCheck.executeQuery();
+
+            if (!rs.next()) {
+                System.out.println("Cash payment failed: order not found");
+                return false;
+            }
+
+            //insert payment
+            String sql = "INSERT INTO ca_payments (payment_id, payment_method, amount) VALUES (?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1, (int)(Math.random() * 100000)); // TEMP
+            ps.setString(2, "CASH");
+            ps.setDouble(3, amount);
+
+            ps.executeUpdate();
+
+            System.out.println("Cash payment successful for order: " + orderID);
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
 
     /**
      * CHECK ACCOUNT BALANCE
