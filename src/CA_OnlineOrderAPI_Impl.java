@@ -100,6 +100,41 @@ public class CA_OnlineOrderAPI_Impl implements CA_OnlineOrderAPI {
     }
 
     /**
+     * ============================
+     * CALCULATE ORDER TOTAL (IMPORTANT FIX)
+     * ============================
+     */
+    private double calculateOrderTotal(String orderID) {
+
+        double total = 0;
+
+        try {
+            String sql =
+                "SELECT p.price, i.quantity " +
+                "FROM ca_online_order_items i " +
+                "JOIN ca_products p ON i.product_id = p.product_id " +
+                "WHERE i.online_order_id = ?";
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, orderID);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                double price = rs.getDouble("price");
+                int qty = rs.getInt("quantity");
+
+                total += price * qty;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return total;
+    }
+
+    /**
      * Pay by card payment in db
      */
     @Override

@@ -15,7 +15,11 @@ public interface SA_Merchant_API{
 
     //abstract String[] getOrderStatus(String orderID);
 
-    //abstract double getBalance(); 
+    double getBalance(int customerID); 
+
+    boolean setCreditLimit(int customerID, double newLimit);
+
+    boolean updateAccountStatus(int customerID, String status);
     
     //abstract Invoice[] getDuePayments(); 
 

@@ -31,7 +31,7 @@ public class SystemJUnitTest {
     @Order(1)
     void testLogin() {
 
-        boolean created = loginApi.createAccount("junitUser", "1234");
+        boolean created = loginApi.createStaff("junitUser", "1234");
         boolean login = loginApi.login("junitUser", "1234");
 
         assertTrue(created || login); // allow if already exists

@@ -1,70 +1,225 @@
+import java.sql.*;
 
-import java.util.*;
+public class SA_Merchant_API_Impl {
 
-public class SA_Merchant_API_Impl implements SA_Merchant_API {
-    // these are just temporary until the databases are in effect
+    private Connection conn;
 
-    // userID -> outstanding balance
-    private Map<String, Double> balances = new HashMap<>();
-
-    // userID -> (userStatus, userType)
-    private Map<String, Map<String, String>> users = new HashMap<>();
-
-    private Map<String, String> userInfo = new HashMap<>();
-
-
-    SA_Merchant_API_Impl(){
-        String orderID = UUID.randomUUID().toString();
-        String orderID2 = UUID.randomUUID().toString();
-        String orderID3 = UUID.randomUUID().toString();
-
-        balances.put("0001", new Double(1000.00));
-        balances.put("0002", new Double(590.00));
-        balances.put("0003", new Double(0.00));
-
-        userInfo.put("suspended", "merchant");
-        users.put("0001",userInfo);
-        userInfo.put("active", "merchant");
-        users.put("0002",userInfo);
-        userInfo.put("active", "admin");
-        users.put("0003",userInfo);
-
-
-
-
-
-
-
+    public SA_Merchant_API_Impl(Connection conn) {
+        this.conn = conn;
     }
 
-    // Will have to be changed when we start communicating with IPOS-SA.
-    //Invoice getInvoice(String orderID){
-    //    return new Invoice(orderID);
-    //
-    //
-    //};
+    /**
+     * CALCULATE ORDER TOTAL
+     */
+    private double calculateOrderTotal(String orderID) {
 
+        double total = 0;
 
-    public double getBalance(String userID) {
-        if (!balances.containsKey(userID)){
+        try {
+            String sql =
+                "SELECT p.price, i.quantity " +
+                "FROM ca_online_order_items i " +
+                "JOIN ca_products p ON i.product_id = p.product_id " +
+                "WHERE i.online_order_id = ?";
 
-            throw new IllegalArgumentException("User " + userID + " does not exist");
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, orderID);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                total += rs.getDouble("price") * rs.getInt("quantity");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        else if (userInfo.containsValue("suspended")) {
-            throw new IllegalArgumentException("User " + userID + " is suspended");
+
+        return total;
+    }
+
+    /**
+     * PAY BY CARD
+     */
+    public boolean payByCard(String orderID, String cardNumber) {
+
+        try {
+            if (cardNumber.length() < 8) {
+                System.out.println("Invalid card");
+                return false;
+            }
+
+            double total = calculateOrderTotal(orderID);
+
+            String sql = "INSERT INTO ca_payments (payment_id, payment_method, amount) VALUES (?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1, (int)(Math.random() * 100000));
+            ps.setString(2, "CARD");
+            ps.setDouble(3, total);
+
+            ps.executeUpdate();
+
+            System.out.println("Card payment successful: £" + total);
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        else{
 
-        return balances.get(userID);
+        return false;
+    }
+
+    /**
+     * PAY BY CASH
+     */
+    public boolean payByCash(String orderID) {
+
+        try {
+            double total = calculateOrderTotal(orderID);
+
+            String sql = "INSERT INTO ca_payments (payment_id, payment_method, amount) VALUES (?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1, (int)(Math.random() * 100000));
+            ps.setString(2, "CASH");
+            ps.setDouble(3, total);
+
+            ps.executeUpdate();
+
+            System.out.println("Cash payment successful: £" + total);
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
+        return false;
+    }
 
+    /**
+     * 
+     * PAY BY CREDIT
+     * 
+     */
+    public boolean payByCredit(String orderID, int customerID) {
+
+        try {
+            double total = calculateOrderTotal(orderID);
+
+            String sql = "SELECT credit_limit, outstanding_balance, account_status FROM ca_customers WHERE customer_id = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, customerID);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (!rs.next()) return false;
+
+            double limit = rs.getDouble("credit_limit");
+            double balance = rs.getDouble("outstanding_balance");
+            String status = rs.getString("account_status");
+
+            if (!status.equalsIgnoreCase("ACTIVE")) {
+                System.out.println("Account not active");
+                return false;
+            }
+
+            if (balance + total > limit) {
+                System.out.println("Credit limit exceeded");
+                return false;
+            }
+
+            // Update balance
+            String update = "UPDATE ca_customers SET outstanding_balance = outstanding_balance + ? WHERE customer_id = ?";
+            PreparedStatement psUpdate = conn.prepareStatement(update);
+            psUpdate.setDouble(1, total);
+            psUpdate.setInt(2, customerID);
+            psUpdate.executeUpdate();
+
+            // Record payment
+            String insert = "INSERT INTO ca_payments (payment_id, customer_id, payment_method, amount) VALUES (?, ?, ?, ?)";
+            PreparedStatement psInsert = conn.prepareStatement(insert);
+
+            psInsert.setInt(1, (int)(Math.random() * 100000));
+            psInsert.setInt(2, customerID);
+            psInsert.setString(3, "CREDIT");
+            psInsert.setDouble(4, total);
+
+            psInsert.executeUpdate();
+
+            System.out.println("Credit payment successful: £" + total);
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    /**
+     * CHECK ACCOUNT BALANCE
+     */
+    public double getCustomerBalance(int customerID) {
+
+        try {
+            String sql = "SELECT outstanding_balance FROM ca_customers WHERE customer_id = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, customerID);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getDouble("outstanding_balance");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    /**
+     * SET CREDIT LIMIT
+     */
+    public boolean setCreditLimit(int customerID, double limit) {
+
+        try {
+            String sql = "UPDATE ca_customers SET credit_limit = ? WHERE customer_id = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setDouble(1, limit);
+            ps.setInt(2, customerID);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
 
-//    public Invoice[] getDuePayments(){
-//
-//    };
+    /**
+     * Update account status (ACTIVE / SUSPENDED / DEFAULT)
+     */
+    public boolean updateAccountStatus(int customerID, String status) {
 
+        try {
+            String sql = "UPDATE ca_customers SET account_status = ? WHERE customer_id = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setString(1, status.toUpperCase());
+            ps.setInt(2, customerID);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
 }
-

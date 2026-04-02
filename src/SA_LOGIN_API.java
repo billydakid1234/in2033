@@ -76,7 +76,7 @@ public class SA_LOGIN_API {
      * CREATE ACCOUNT
      * Only assumption is that the new account will be a CUSTOMER (default role)
      */
-    public boolean createAccount(String username, String password) {
+    public boolean createStaff(String username, String password) {
 
         try {
             // Check if username already exists
@@ -90,8 +90,8 @@ public class SA_LOGIN_API {
                 return false; // user already exists
             }
 
-            // Get role_id for CUSTOMER
-            int roleId = getRoleIdByName(ROLE_CUSTOMER);
+            // Get role_id for Staff
+            int roleId = getRoleIdByName(ROLE_STAFF);
 
             // Step 3: Insert user into database
             String insertSql = "INSERT INTO ca_users (username, password_hash, role_id) VALUES (?, ?, ?)";
@@ -112,10 +112,29 @@ public class SA_LOGIN_API {
         return false;
     }
 
+    public boolean createCustomer(int id, String name, String email) {
+
+    try {
+        String sql = "INSERT INTO ca_customers (customer_id, name, email, account_holder, credit_limit, outstanding_balance, account_status) VALUES (?, ?, ?, TRUE, 0, 0, 'ACTIVE')";
+        PreparedStatement ps = conn.prepareStatement(sql);
+
+        ps.setInt(1, id);
+        ps.setString(2, name);
+        ps.setString(3, email);
+
+        return ps.executeUpdate() > 0;
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return false;
+    }
+
     /**
      * REMOVE ACCOUNT
      */
-    public boolean removeAccount(String username) {
+    public boolean removeStaff(String username) {
 
         try {
             String sql = "DELETE FROM ca_users WHERE username = ?";
@@ -132,6 +151,23 @@ public class SA_LOGIN_API {
         }
 
         return false;
+    }
+
+    public boolean deleteCustomer(int customerID) {
+
+    try {
+        String sql = "DELETE FROM ca_customers WHERE customer_id = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+
+        ps.setInt(1, customerID);
+
+        return ps.executeUpdate() > 0;
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return false;
     }
 
     /**
