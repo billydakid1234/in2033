@@ -16,9 +16,15 @@ package GUI;
  */
 
 import database.DBConnection;
-import DBConnection;
-import SA_LOGIN_API;
-import Backend.*;
+import login.SA_LOGIN_API;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import javax.swing.JOptionPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableModel;
+import login.User;
+import java.util.List;
 
 public class ManageStaff extends javax.swing.JPanel {
     
@@ -32,7 +38,25 @@ public class ManageStaff extends javax.swing.JPanel {
     public ManageStaff() {
         initComponents();
         
-        loginAPI = new SA_LOGIN_API(DBConnection.getConnection());
+           loginAPI = new SA_LOGIN_API();
+           
+                jTextField1.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) {
+                filterUsers();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                filterUsers();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                filterUsers();
+            }
+        });
+
+        loadUsersTable();
+    
+
     }
 
     /**
@@ -81,17 +105,14 @@ public class ManageStaff extends javax.swing.JPanel {
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+
             },
             new String [] {
-                "Account #", "StaffID", "Name", "Email", "Phone", "Role", "Password"
+                "User ID", "Username", "Role", "Created At"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -195,141 +216,111 @@ public class ManageStaff extends javax.swing.JPanel {
         CustomerJpanel2.getAccessibleContext().setAccessibleName("Manage staff accounts");
     }// </editor-fold>//GEN-END:initComponents
 
+private void loadUsersTable() {
+    try {
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0);
+
+        List<User> users = loginAPI.getAllUsers();
+
+        for (User user : users) {
+            model.addRow(new Object[]{
+                user.getUserId(),
+                user.getUsername(),
+                user.getRoleName(),
+                user.getCreatedAt()
+            });
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error loading users: " + e.getMessage());
+    }
+}
+
+private void filterUsers() {
+    try {
+        String searchText = jTextField1.getText().trim().toLowerCase();
+
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0);
+
+        List<User> users = loginAPI.getAllUsers();
+
+        for (User user : users) {
+            String username = user.getUsername().toLowerCase();
+            String role = user.getRoleName().toLowerCase();
+
+            if (searchText.isEmpty() || username.contains(searchText) || role.contains(searchText)) {
+                model.addRow(new Object[]{
+                    user.getUserId(),
+                    user.getUsername(),
+                    user.getRoleName(),
+                    user.getCreatedAt()
+                });
+            }
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Search error: " + e.getMessage());
+    }
+}
+    
+    
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-        // TODO add your handling code here:
+        filterUsers();
     }//GEN-LAST:event_jTextField1ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
-        javax.swing.JTextField txtAccountId = new javax.swing.JTextField();
-        javax.swing.JTextField txtStaffId = new javax.swing.JTextField();
-        javax.swing.JTextField txtName = new javax.swing.JTextField();
-        javax.swing.JTextField txtEmail = new javax.swing.JTextField();
-        javax.swing.JTextField txtPhone = new javax.swing.JTextField();
-        String[] roles = {"Admin", "Manager", "Pharmacist"};
+        javax.swing.JTextField txtUsername = new javax.swing.JTextField();
+        javax.swing.JTextField txtPassword = new javax.swing.JTextField();
+        String[] roles = {"Admin", "Pharmacist", "Cashier"};
         javax.swing.JComboBox<String> comboRole = new javax.swing.JComboBox<>(roles);
-        //javax.swing.JTextField password = new javax.swing.JTextField();
-        
-
-        /*
-        String[] discountPlans = {"None", "Fixed Discount", "Variable (Volume-Based)"};
-        javax.swing.JComboBox<String> cmbDiscountPlan = new javax.swing.JComboBox<>(discountPlans);
-        */
 
         javax.swing.JPanel panel = new javax.swing.JPanel(new java.awt.GridLayout(0, 1, 5, 5));
-        panel.add(new javax.swing.JLabel("Account ID:"));
-        panel.add(txtAccountId);
-        panel.add(new javax.swing.JLabel("Staff ID:"));
-        panel.add(txtStaffId);
-        panel.add(new javax.swing.JLabel("Name:"));
-        panel.add(txtName);
-        panel.add(new javax.swing.JLabel("Email:"));
-        panel.add(txtEmail);
-        panel.add(new javax.swing.JLabel("Phone:"));
-        panel.add(txtPhone);
+        panel.add(new javax.swing.JLabel("Username:"));
+        panel.add(txtUsername);
+        panel.add(new javax.swing.JLabel("Password:"));
+        panel.add(txtPassword);
         panel.add(new javax.swing.JLabel("Role:"));
         panel.add(comboRole);
-        
 
-        int result = javax.swing.JOptionPane.showConfirmDialog(
+        int result = JOptionPane.showConfirmDialog(
             this,
             panel,
-            "Add Staff member",
-            javax.swing.JOptionPane.OK_CANCEL_OPTION,
-            javax.swing.JOptionPane.PLAIN_MESSAGE
+            "Add Staff Member",
+            JOptionPane.OK_CANCEL_OPTION,
+            JOptionPane.PLAIN_MESSAGE
         );
 
-        if (result == javax.swing.JOptionPane.OK_OPTION) {
-            String accountId = txtAccountId.getText().trim();
-            String staffId = txtStaffId.getText().trim();
-            String name = txtName.getText().trim();
-            String email = txtEmail.getText().trim();
-            String phone = txtPhone.getText().trim();
-            String role = ((String) comboRole.getSelectedItem()).trim();
-            String password = generatePassword(8);
-            
+        if (result == JOptionPane.OK_OPTION) {
+            String username = txtUsername.getText().trim();
+            String password = txtPassword.getText().trim();
+            String role = comboRole.getSelectedItem().toString();
 
-            // Empty field validation
-            if (accountId.isEmpty() || staffId.isEmpty() || name.isEmpty() || email.isEmpty() || phone.isEmpty() || role.isEmpty()) {
-                javax.swing.JOptionPane.showMessageDialog(this, "Please fill in all fields.");
+            if (username.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please fill in all fields.");
                 return;
             }
 
-            // Account ID validation: must look like ACC001
-            if (!accountId.matches("ACCS\\d+")) {
-                javax.swing.JOptionPane.showMessageDialog(this,
-                    "Account ID must start with ACCS followed by numbers, e.g. ACCS001.");
-                return;
-            }
-            
-            // Account ID validation: must look like S001
-            if (!staffId.matches("SID\\d+")) {
-                javax.swing.JOptionPane.showMessageDialog(this,
-                    "Staff ID must start with SID followed by numbers, e.g. SID001.");
+            if (!username.matches("[A-Za-z0-9_]{3,}")) {
+                JOptionPane.showMessageDialog(this, "Username must be at least 3 characters and contain only letters, numbers, or underscores.");
                 return;
             }
 
-            // Name validation: letters and spaces only, at least 2 chars
-            if (!name.matches("[A-Za-z ]{2,}")) {
-                javax.swing.JOptionPane.showMessageDialog(this,
-                    "Please enter a valid customer name.");
-                return;
-            }
+            try {
+                boolean created = loginAPI.createStaff(username, password, role);
 
-            // Email validation
-            if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
-                javax.swing.JOptionPane.showMessageDialog(this,
-                    "Please enter a valid email address.");
-                return;
-            }
-
-            // Phone validation: 10 to 11 digits only
-            if (!phone.matches("\\d{10,11}")) {
-                javax.swing.JOptionPane.showMessageDialog(this,
-                    "Phone number must contain 10 to 11 digits.");
-                return;
-            }
-
-            
-
-            // Optional: prevent duplicate account IDs
-            javax.swing.table.DefaultTableModel model =
-            (javax.swing.table.DefaultTableModel) jTable1.getModel();
-
-            for (int i = 0; i < model.getRowCount(); i++) {
-                Object existingId = model.getValueAt(i, 0);
-                if (existingId != null && accountId.equalsIgnoreCase(existingId.toString())) {
-                    javax.swing.JOptionPane.showMessageDialog(this,
-                        "Account ID already exists. Please use a unique Account ID.");
-                    return;
+                if (created) {
+                    JOptionPane.showMessageDialog(this, "Staff member added successfully.");
+                    loadUsersTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to add staff member.");
                 }
+
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, e.getMessage());
             }
-            
-            
-            
-            
-
-            
-            
-            // Add row to table
-            model.addRow(new Object[]{
-                accountId,
-                staffId,
-                name,
-                email,
-                phone,
-                role,
-                password
-            });
-            
-            loginAPI.createStaff(name, password);
-            
-            
-            
-            
-            
-
-            javax.swing.JOptionPane.showMessageDialog(this, "Staff member added successfully.");
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -337,77 +328,79 @@ public class ManageStaff extends javax.swing.JPanel {
         int selectedRow = jTable1.getSelectedRow();
 
         if (selectedRow == -1) {
-            javax.swing.JOptionPane.showMessageDialog(this,
-                "Please select a staff account to delete.");
+            JOptionPane.showMessageDialog(this, "Please select a staff account to delete.");
             return;
         }
 
-        int confirm = javax.swing.JOptionPane.showConfirmDialog(
+        int confirm = JOptionPane.showConfirmDialog(
             this,
             "Are you sure you want to delete this staff account?",
             "Confirm Delete",
-            javax.swing.JOptionPane.YES_NO_OPTION
+            JOptionPane.YES_NO_OPTION
         );
 
-        if (confirm == javax.swing.JOptionPane.YES_OPTION) {
-            javax.swing.table.DefaultTableModel model =
-            (javax.swing.table.DefaultTableModel) jTable1.getModel();
+        if (confirm == JOptionPane.YES_OPTION) {
+            String username = jTable1.getValueAt(selectedRow, 1).toString();
 
-            model.removeRow(selectedRow);
+            try {
+                boolean deleted = loginAPI.removeStaff(username);
 
-            javax.swing.JOptionPane.showMessageDialog(this,
-                "Staff account deleted successfully.");
+                if (deleted) {
+                    JOptionPane.showMessageDialog(this, "Staff account deleted successfully.");
+                    loadUsersTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to delete staff account.");
+                }
+
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, e.getMessage());
+            }
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         int selectedRow = jTable1.getSelectedRow();
 
-    if (selectedRow == -1) {
-        javax.swing.JOptionPane.showMessageDialog(this,
-            "Please select a staff member first.");
-        return;
-    }
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a staff member first.");
+            return;
+        }
 
-    String[] roles = {"Manager", "Admin", "Pharmacist"};
+        String[] roles = {"Admin", "Pharmacist", "Cashier"};
 
-    String selectedRole = (String) javax.swing.JOptionPane.showInputDialog(
-        this,
-        "Select new role:",
-        "Update Role",
-        javax.swing.JOptionPane.QUESTION_MESSAGE,
-        null,
-        roles,
-        roles[0]
-    );
+        String selectedRole = (String) JOptionPane.showInputDialog(
+            this,
+            "Select new role:",
+            "Update Role",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            roles,
+            roles[0]
+        );
 
-    if (selectedRole == null) {
-        return; // user pressed cancel
-    }
+        if (selectedRole == null) {
+            return;
+        }
 
-    javax.swing.table.DefaultTableModel model =
-        (javax.swing.table.DefaultTableModel) jTable1.getModel();
+        String username = jTable1.getValueAt(selectedRow, 1).toString();
 
-    model.setValueAt(selectedRole, selectedRow, 5); // column 5 = Role
+        try {
+            boolean updated = loginAPI.updateUserRole(username, selectedRole);
 
-    javax.swing.JOptionPane.showMessageDialog(this,
-        "Discount plan updated successfully.");
+            if (updated) {
+                JOptionPane.showMessageDialog(this, "User role updated successfully.");
+                loadUsersTable();
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to update role.");
+            }
 
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+   
     }//GEN-LAST:event_jButton3ActionPerformed
 
-    private String generatePassword(int length) {
-    String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-    java.security.SecureRandom random = new java.security.SecureRandom();
-    
-    StringBuilder password = new StringBuilder();
 
-    for (int i = 0; i < length; i++) {
-        int index = random.nextInt(chars.length());
-        password.append(chars.charAt(index));
-    }
-
-    return password.toString();
-}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private java.awt.Label CustomerJpanel2;

@@ -108,7 +108,6 @@ public MainWindow(String role) {
         lbMenu.setForeground(new java.awt.Color(255, 255, 255));
         lbMenu.setText("Pharmacy System");
 
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/images/logomini.png"))); // NOI18N
         jLabel1.setText("jLabel1");
 
         btnReports.setBackground(new java.awt.Color(0, 0, 51));
@@ -198,7 +197,7 @@ public MainWindow(String role) {
                 .addComponent(btnStaff, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(62, 62, 62)
                 .addComponent(btnLogout, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(67, Short.MAX_VALUE))
+                .addContainerGap(111, Short.MAX_VALUE))
         );
 
         contentPanel.setLayout(new java.awt.BorderLayout());
