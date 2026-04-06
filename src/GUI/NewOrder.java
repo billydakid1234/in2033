@@ -4,14 +4,27 @@
  */
 package GUI;
 
+
+
+
+
 /**
  *
  * @author mehzanazkhan
  */
+
+
+import sa_orders.SA_ORD_API;
+import database.DBConnection;
+
+
 public class NewOrder extends javax.swing.JDialog {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(NewOrder.class.getName());
     private Orders ordersPanel;
+    private final SA_ORD_API saOrdApi;
+
+
     
 
     /**
@@ -21,6 +34,10 @@ public class NewOrder extends javax.swing.JDialog {
         super(parent, modal);
         this.ordersPanel = ordersPanel;
         initComponents();
+        
+        
+        saOrdApi = new SA_ORD_API(DBConnection.getConnection());
+
         
         
         javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(
@@ -209,6 +226,12 @@ public class NewOrder extends javax.swing.JDialog {
         model.addRow(new Object[]{productId, quantity});
         
         txtProductID.setText("");
+        
+        
+        
+        
+        
+        
     }//GEN-LAST:event_btnAddItemActionPerformed
 
     private void txtProductIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtProductIDActionPerformed
@@ -220,21 +243,40 @@ public class NewOrder extends javax.swing.JDialog {
         javax.swing.table.DefaultTableModel model =
         (javax.swing.table.DefaultTableModel) jTableOrder.getModel();
 
-        String orderId = Orders.generateOrderID();
+        String orderId = saOrdApi.newOrder();
         String date = new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date());
         String status = "Pending";
 
         double totalCost = 0;
+        
+        int rowCount = model.getRowCount();
+        int[] itemIDs = new int[rowCount];
+        int[] quantities = new int[rowCount];
 
-        for (int i = 0; i < model.getRowCount(); i++) {
+        
+        for (int i = 0; i < rowCount; i++) {
+        int productId = Integer.parseInt(model.getValueAt(i, 0).toString());
+        int quantity = Integer.parseInt(model.getValueAt(i, 1).toString());
+
+        itemIDs[i] = productId;
+        quantities[i] = quantity;
+
+
+        double price = 10; //currently missing a get product price from backend
+        totalCost += price * quantity;
+        }
+
+
+        saOrdApi.addItems(orderId, itemIDs, quantities);
+
+
+        saOrdApi.submitOrder(orderId);
+
+
+        for (int i = 0; i < rowCount; i++) {
             String productId = model.getValueAt(i, 0).toString();
             int quantity = Integer.parseInt(model.getValueAt(i, 1).toString());
 
-
-            double price = 10;
-            totalCost += price * quantity;
-
-            
             ordersPanel.addOrderRow(new Object[]{
                 orderId,
                 date,

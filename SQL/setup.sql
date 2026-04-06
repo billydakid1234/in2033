@@ -15,6 +15,7 @@ DROP TABLE IF EXISTS supplier_invoices;
 DROP TABLE IF EXISTS supplier_order_items;
 DROP TABLE IF EXISTS supplier_orders;
 DROP TABLE IF EXISTS discounts;
+DROP TABLE IF EXISTS ca_customer_discounts;
 DROP TABLE IF EXISTS ca_sale_items;
 DROP TABLE IF EXISTS ca_payments;
 DROP TABLE IF EXISTS ca_sales;
@@ -117,6 +118,13 @@ CREATE TABLE discounts (
     checked_price DECIMAL(10,2),
     checked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (checkout_item_id) REFERENCES ca_checkout_items(checkout_item_id),
+    FOREIGN KEY (customer_id) REFERENCES ca_customers(customer_id)
+);
+
+CREATE TABLE ca_customer_discounts (
+    customer_id INT PRIMARY KEY,
+    plan_type VARCHAR(20) NOT NULL,
+    discount_value DECIMAL(10,2) NOT NULL,
     FOREIGN KEY (customer_id) REFERENCES ca_customers(customer_id)
 );
 

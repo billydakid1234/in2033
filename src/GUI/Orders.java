@@ -4,13 +4,22 @@
  */
 package GUI;
 
+
 /**
  *
  * @author mehzanazkhan
  */
+
+import sa_orders.SA_ORD_API;
+import database.DBConnection;
+//import ca_online_orders.CA_OnlineOrderAPI_Impl;
+
+
 public class Orders extends javax.swing.JPanel {
 
     private static int orderCounter = 1;
+    private SA_ORD_API saOrdApi;
+    //private CA_OnlineOrderAPI_Impl orderApi;
     
     
     /**
@@ -18,6 +27,30 @@ public class Orders extends javax.swing.JPanel {
      */
     public Orders() {
         initComponents();
+        
+        //THIS USES THE WRONG API
+        /*
+        orderApi = new CA_OnlineOrderAPI_Impl(
+        new sa_orders.SA_ORD_API(DBConnection.getConnection()),
+        new merchant.SA_Merchant_API_Impl(DBConnection.getConnection()), 
+        new stock.CA_Stock_API_Impl(DBConnection.getConnection()),
+        DBConnection.getConnection()
+        );
+        */
+        
+        saOrdApi = new SA_ORD_API(database.DBConnection.getConnection());
+        loadOrders();
+        loadCatalogue();
+        
+        
+        
+        jCatalogueSearchBar.addKeyListener(new java.awt.event.KeyAdapter() {
+        public void keyReleased(java.awt.event.KeyEvent evt) {
+            searchCatalogue(jCatalogueSearchBar.getText());
+        }
+        });
+        
+        
         
         
     }
@@ -41,8 +74,10 @@ public class Orders extends javax.swing.JPanel {
         lbInfo2 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jCatalogueTable = new javax.swing.JTable();
         jLabel4 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        jCatalogueSearchBar = new javax.swing.JTextField();
         jPanel5 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
@@ -79,6 +114,13 @@ public class Orders extends javax.swing.JPanel {
             }
         });
         jScrollPane1.setViewportView(jOrdersTable);
+        if (jOrdersTable.getColumnModel().getColumnCount() > 0) {
+            jOrdersTable.getColumnModel().getColumn(2).setHeaderValue("Status");
+            jOrdersTable.getColumnModel().getColumn(3).setHeaderValue("Items");
+            jOrdersTable.getColumnModel().getColumn(4).setHeaderValue("Quantity");
+            jOrdersTable.getColumnModel().getColumn(5).setResizable(false);
+            jOrdersTable.getColumnModel().getColumn(5).setHeaderValue("Total cost");
+        }
 
         lbInfo2.setFont(new java.awt.Font("Helvetica Neue", 1, 20)); // NOI18N
         lbInfo2.setForeground(new java.awt.Color(102, 102, 102));
@@ -111,22 +153,40 @@ public class Orders extends javax.swing.JPanel {
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
 
+        jCatalogueTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Product ID", "Product Name"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.Object.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane2.setViewportView(jCatalogueTable);
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 897, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 901, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 427, Short.MAX_VALUE)
+            .addComponent(jScrollPane2)
         );
 
         jLabel4.setFont(new java.awt.Font("Helvetica Neue", 1, 18)); // NOI18N
         jLabel4.setText("Search:");
 
-        jTextField1.setText("Search by product ID or name.....");
-        jTextField1.addActionListener(this::jTextField1ActionPerformed);
+        jCatalogueSearchBar.setText("Search by product name.....");
+        jCatalogueSearchBar.addActionListener(this::jCatalogueSearchBarActionPerformed);
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -135,14 +195,14 @@ public class Orders extends javax.swing.JPanel {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(51, 51, 51)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGap(72, 72, 72)
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 517, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(32, Short.MAX_VALUE))
+                        .addComponent(jCatalogueSearchBar, javax.swing.GroupLayout.PREFERRED_SIZE, 517, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(42, 42, 42)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(37, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -150,7 +210,7 @@ public class Orders extends javax.swing.JPanel {
                 .addGap(35, 35, 35)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jCatalogueSearchBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(23, Short.MAX_VALUE))
@@ -260,11 +320,8 @@ public class Orders extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 405, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(lbInfo1)))
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 405, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lbInfo1)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -296,6 +353,91 @@ public class Orders extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
 
+    private void loadOrders() {
+        try {
+            javax.swing.table.DefaultTableModel model =
+                (javax.swing.table.DefaultTableModel) jOrdersTable.getModel();
+
+            model.setRowCount(0);
+
+            java.sql.ResultSet rs = saOrdApi.getAllOrders();
+
+            if (rs == null) return;
+
+            while (rs.next()) {
+                String orderId = rs.getString("online_order_id");
+                String status = rs.getBoolean("processed") ? "Processed" : "Pending";
+                int productId = rs.getInt("product_id");
+                int quantity = rs.getInt("quantity");
+
+                String date = new java.text.SimpleDateFormat("dd/MM/yyyy")
+                              .format(new java.util.Date());
+
+                double totalCost = quantity * 10;
+
+                model.addRow(new Object[]{
+                    orderId,
+                    date,
+                    status,
+                    productId,
+                    quantity,
+                    totalCost
+                });
+            }
+
+        } catch (Exception e) {
+                e.printStackTrace();
+        }
+    }
+    
+    
+    
+    private void loadCatalogue() {
+        //THIS USES THE WRONG PRODUCT CATALOGUE, CALATOGUE NEEDS TO BE RETRIEVED FROM SA
+        /*
+        try {
+            javax.swing.table.DefaultTableModel model =
+                (javax.swing.table.DefaultTableModel) jCatalogueTable.getModel();
+            model.setRowCount(0);
+
+            
+            String[] catalogueItems = orderApi.getMerchantCatalogue(""); 
+
+            for (String item : catalogueItems) {
+                String[] parts = item.split(" - ", 2); 
+                model.addRow(new Object[]{parts[0], parts[1]});
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        */
+    }
+    
+    
+    private void searchCatalogue(String searchText) {
+        //THIS USES THE WRONG PRODUCT CATALOGUE, CALATOGUE NEEDS TO BE RETRIEVED FROM SA
+        /*
+        try {
+            javax.swing.table.DefaultTableModel model
+                    = (javax.swing.table.DefaultTableModel) jCatalogueTable.getModel();
+            model.setRowCount(0);
+
+            String[] catalogueItems = orderApi.getMerchantCatalogue(searchText);
+
+            for (String item : catalogueItems) {
+                String[] parts = item.split(" - ", 2);
+                model.addRow(new Object[]{parts[0], parts[1]});
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        */
+        
+}
+    
     
     public static String generateOrderID(){
         return String.format("ORD%05d", orderCounter++);
@@ -313,9 +455,10 @@ public class Orders extends javax.swing.JPanel {
 
     }                                        
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
+    private void jCatalogueSearchBarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCatalogueSearchBarActionPerformed
+        String text = jCatalogueSearchBar.getText();
+        searchCatalogue(text);
+    }//GEN-LAST:event_jCatalogueSearchBarActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         int selectedRow = jOrdersTable.getSelectedRow();
@@ -349,6 +492,8 @@ public class Orders extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnPlaceOrder;
     private javax.swing.JButton jButton2;
+    private javax.swing.JTextField jCatalogueSearchBar;
+    private javax.swing.JTable jCatalogueTable;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -363,8 +508,8 @@ public class Orders extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane2;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JLabel lbInfo1;
     private javax.swing.JLabel lbInfo2;
     // End of variables declaration//GEN-END:variables

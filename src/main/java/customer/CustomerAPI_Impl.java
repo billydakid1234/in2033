@@ -156,4 +156,41 @@ public boolean addCustomer(String firstName,
    
         }
     }
+    
+    @Override
+public void updateAccountStatuses() throws Exception {
+    String suspendSql =
+        "UPDATE ca_customers " +
+        "SET account_status = 'SUSPENDED' " +
+        "WHERE account_holder = 1 " +
+        "AND outstanding_balance > 0 " +
+        "AND outstanding_balance <= credit_limit";
+
+    String defaultSql =
+        "UPDATE ca_customers " +
+        "SET account_status = 'IN_DEFAULT' " +
+        "WHERE account_holder = 1 " +
+        "AND outstanding_balance > credit_limit";
+
+    String normalSql =
+        "UPDATE ca_customers " +
+        "SET account_status = 'NORMAL' " +
+        "WHERE account_holder = 1 " +
+        "AND outstanding_balance <= 0";
+
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement psSuspend = conn.prepareStatement(suspendSql);
+         PreparedStatement psDefault = conn.prepareStatement(defaultSql);
+         PreparedStatement psNormal = conn.prepareStatement(normalSql)) {
+
+        if (conn == null) {
+            throw new Exception("Database connection failed.");
+        }
+
+        psSuspend.executeUpdate();
+        psDefault.executeUpdate();
+        psNormal.executeUpdate();
+    }
+    
+    }
 }

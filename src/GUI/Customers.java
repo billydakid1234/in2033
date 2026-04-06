@@ -49,12 +49,13 @@ public Customers() {
     Connection conn = DBConnection.getConnection();
     merchantAPI = new SA_Merchant_API_Impl(conn);
 
-    try {
-        customerAPI.normaliseStatuses();
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this,
-            "Error normalising statuses: " + e.getMessage());
-    }
+try {
+    customerAPI.normaliseStatuses();
+    merchantAPI.checkAndAutoUpdateAllAccounts();
+} catch (Exception e) {
+    JOptionPane.showMessageDialog(this,
+        "Error updating statuses: " + e.getMessage());
+}
 
     loadCustomersTable();
 }
@@ -82,10 +83,12 @@ public Customers(String role) {
 
     try {
         customerAPI.normaliseStatuses();
+        merchantAPI.checkAndAutoUpdateAllAccounts();
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this,
             "Error normalising statuses: " + e.getMessage());
     }
+
 
     loadCustomersTable();
 }
@@ -112,7 +115,7 @@ public Customers(String role) {
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setFont(new java.awt.Font("Helvetica Neue", 1, 24)); // NOI18N
@@ -173,11 +176,11 @@ public Customers(String role) {
         jButton4.setText("Reactivate Account");
         jButton4.addActionListener(this::jButton4ActionPerformed);
 
-        jButton5.setBackground(new java.awt.Color(0, 0, 51));
-        jButton5.setFont(new java.awt.Font("Helvetica Neue", 1, 18)); // NOI18N
-        jButton5.setForeground(new java.awt.Color(255, 255, 255));
-        jButton5.setText("Remind Customer");
-        jButton5.addActionListener(this::jButton5ActionPerformed);
+        jButton6.setBackground(new java.awt.Color(0, 0, 51));
+        jButton6.setFont(new java.awt.Font("Helvetica Neue", 1, 18)); // NOI18N
+        jButton6.setForeground(new java.awt.Color(255, 255, 255));
+        jButton6.setText("Record Payment");
+        jButton6.addActionListener(this::jButton6ActionPerformed);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -203,11 +206,12 @@ public Customers(String role) {
                                     .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                 .addGap(29, 29, 29)
-                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 221, Short.MAX_VALUE)
+                                    .addComponent(jButton6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(29, 29, 29)
-                                .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(127, 127, 127)
+                                .addComponent(jButton4)))
                         .addGap(61, 61, 61))))
         );
         jPanel1Layout.setVerticalGroup(
@@ -228,12 +232,12 @@ public Customers(String role) {
                             .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, 43, Short.MAX_VALUE)
-                            .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 84, Short.MAX_VALUE)))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(33, 33, 33)
+                        .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 112, Short.MAX_VALUE)))
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 521, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -480,6 +484,7 @@ public Customers(String role) {
 
         if (updated) {
             JOptionPane.showMessageDialog(this, "Credit limit updated successfully.");
+            merchantAPI.checkAndAutoUpdateAllAccounts();
             loadCustomersTable();
         } else {
             JOptionPane.showMessageDialog(this, "Failed to update credit limit.");
@@ -533,6 +538,7 @@ public Customers(String role) {
         if (updated) {
             JOptionPane.showMessageDialog(this,
                 "Account reactivated successfully.");
+            merchantAPI.checkAndAutoUpdateAllAccounts();
             loadCustomersTable();
         } else {
             JOptionPane.showMessageDialog(this,
@@ -557,6 +563,59 @@ public Customers(String role) {
 
         showReminderLetter(customerName, accountId, balance);
     }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+            int selectedRow = jTable1.getSelectedRow();
+
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Please select a customer first.");
+        return;
+    }
+
+    String accountId = jTable1.getValueAt(selectedRow, 0).toString();
+    String amountText = JOptionPane.showInputDialog(this, "Enter payment amount:");
+
+    if (amountText == null) {
+        return;
+    }
+
+    amountText = amountText.trim();
+
+    if (amountText.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Payment amount cannot be empty.");
+        return;
+    }
+
+    double amount;
+    try {
+        amount = Double.parseDouble(amountText);
+
+        if (amount <= 0) {
+            JOptionPane.showMessageDialog(this, "Payment amount must be greater than 0.");
+            return;
+        }
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "Please enter a valid payment amount.");
+        return;
+    }
+
+    try {
+        int customerId = Integer.parseInt(accountId.substring(3));
+
+        boolean paid = merchantAPI.recordAccountPayment(customerId, amount);
+
+        if (paid) {
+            merchantAPI.checkAndAutoUpdateAllAccounts();
+            JOptionPane.showMessageDialog(this, "Payment recorded successfully.");
+            loadCustomersTable();
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to record payment.");
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, e.getMessage());
+    }
+    }//GEN-LAST:event_jButton6ActionPerformed
 
     private void showReminderLetter(String customerName, String accountId, String balance) {
         String reminderText =
@@ -620,7 +679,7 @@ public Customers(String role) {
         for (Customer c : customers) {
             model.addRow(new Object[]{
                 c.getAccountId(),
-                c.getFirstName(),
+                c.getFirstName() + " " + c.getSurname(),
                 c.getEmail(),
                 c.getPhone(),
                 c.getCreditLimit(),
@@ -652,15 +711,15 @@ private void filterCustomers() {
                 name.contains(searchText) ||
                 email.contains(searchText)) {
 
-                model.addRow(new Object[]{
-                    c.getAccountId(),
-                    c.getFirstName(),
-                    c.getEmail(),
-                    c.getPhone(),
-                    c.getCreditLimit(),
-                    c.getAccountStatus(),
-                    c.getOutstandingBalance()
-                });
+model.addRow(new Object[]{
+    c.getAccountId(),
+    c.getFirstName() + " " + c.getSurname(),
+    c.getEmail(),
+    c.getPhone(),
+    c.getCreditLimit(),
+    c.getAccountStatus(),
+    c.getOutstandingBalance()
+});
             }
         }
 
@@ -675,7 +734,7 @@ private void filterCustomers() {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
