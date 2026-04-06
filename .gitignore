@@ -6,3 +6,6 @@
 /*.class
 /*.jar
 /IN-2033.app/
+*.db-shm
+*.db-wal
+*.class
