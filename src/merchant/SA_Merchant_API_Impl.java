@@ -340,41 +340,91 @@ public class SA_Merchant_API_Impl implements SA_Merchant_API {
      * Allows manager to manually restore an IN_DEFAULT account back to NORMAL status
      * Only by explicit manager intervention
      */
-    public boolean managerReactivateAccount(int customerID) {
-        try {
-            String sql = "SELECT account_status FROM ca_customers WHERE customer_id = ?";
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, customerID);
+public boolean managerReactivateAccount(int customerID) {
+    try {
+        String sql = "SELECT account_status, outstanding_balance FROM ca_customers WHERE customer_id = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setInt(1, customerID);
 
-            ResultSet rs = ps.executeQuery();
+        ResultSet rs = ps.executeQuery();
 
-            if (!rs.next()) {
-                System.out.println("Customer not found");
-                return false;
-            }
-
-            String status = rs.getString("account_status");
-
-            // Only reactivate if currently IN_DEFAULT
-            if (!status.equalsIgnoreCase("IN_DEFAULT")) {
-                System.out.println("Account is not IN_DEFAULT - cannot reactivate");
-                return false;
-            }
-
-            String updateSql = "UPDATE ca_customers SET account_status = 'NORMAL' WHERE customer_id = ?";
-            PreparedStatement psUpdate = conn.prepareStatement(updateSql);
-            psUpdate.setInt(1, customerID);
-            psUpdate.executeUpdate();
-
-            System.out.println("Account reactivated by manager - status changed from IN_DEFAULT to NORMAL");
-            return true;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (!rs.next()) {
+            System.out.println("Customer not found");
+            return false;
         }
 
-        return false;
+        String status = rs.getString("account_status");
+        double balance = rs.getDouble("outstanding_balance");
+
+        if (!status.equalsIgnoreCase("IN_DEFAULT")) {
+            System.out.println("Account is not IN_DEFAULT - cannot reactivate");
+            return false;
+        }
+
+        if (balance > 0) {
+            System.out.println("Account still has unpaid balance - cannot reactivate");
+            return false;
+        }
+
+        String updateSql = "UPDATE ca_customers SET account_status = 'NORMAL' WHERE customer_id = ?";
+        PreparedStatement psUpdate = conn.prepareStatement(updateSql);
+        psUpdate.setInt(1, customerID);
+        psUpdate.executeUpdate();
+
+        System.out.println("Account reactivated by manager");
+        return true;
+
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+
+    return false;
+}
+
+public boolean recordAccountPayment(int customerID, double amount) {
+    try {
+        String sql = "SELECT outstanding_balance FROM ca_customers WHERE customer_id = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setInt(1, customerID);
+        ResultSet rs = ps.executeQuery();
+
+        if (!rs.next()) {
+            System.out.println("Customer not found");
+            return false;
+        }
+
+        double balance = rs.getDouble("outstanding_balance");
+
+        if (amount <= 0) {
+            System.out.println("Invalid payment amount");
+            return false;
+        }
+
+        double newBalance = Math.max(0, balance - amount);
+
+        String updateSql = "UPDATE ca_customers SET outstanding_balance = ? WHERE customer_id = ?";
+        PreparedStatement psUpdate = conn.prepareStatement(updateSql);
+        psUpdate.setDouble(1, newBalance);
+        psUpdate.setInt(2, customerID);
+        psUpdate.executeUpdate();
+
+        String insertPayment = "INSERT INTO ca_payments (payment_id, customer_id, payment_method, amount) VALUES (?, ?, ?, ?)";
+        PreparedStatement psPayment = conn.prepareStatement(insertPayment);
+        psPayment.setInt(1, (int)(Math.random() * 100000));
+        psPayment.setInt(2, customerID);
+        psPayment.setString(3, "ACCOUNT_PAYMENT");
+        psPayment.setDouble(4, amount);
+        psPayment.executeUpdate();
+
+        System.out.println("Account payment recorded: £" + amount);
+        return true;
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return false;
+}
 
     /**
      * statement making
@@ -435,6 +485,39 @@ public class SA_Merchant_API_Impl implements SA_Merchant_API {
 
         return statementsGenerated;
     }
+    
+    public boolean autoRestoreAccount(int customerID) {
+    try {
+        String sql = "SELECT outstanding_balance, account_status FROM ca_customers WHERE customer_id = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setInt(1, customerID);
+
+        ResultSet rs = ps.executeQuery();
+
+        if (!rs.next()) {
+            System.out.println("Customer not found");
+            return false;
+        }
+
+        double balance = rs.getDouble("outstanding_balance");
+        String status = rs.getString("account_status");
+
+        if (balance <= 0 && status.equalsIgnoreCase("SUSPENDED")) {
+            String updateSql = "UPDATE ca_customers SET account_status = 'NORMAL' WHERE customer_id = ?";
+            PreparedStatement psUpdate = conn.prepareStatement(updateSql);
+            psUpdate.setInt(1, customerID);
+            psUpdate.executeUpdate();
+
+            System.out.println("Account automatically restored to NORMAL");
+            return true;
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return false;
+}
 
     /**
      * GENERATE REMINDERS
@@ -536,33 +619,37 @@ public class SA_Merchant_API_Impl implements SA_Merchant_API {
      * Batch process to check all customer accounts and apply automatic status changes
      * Should be run periodically (e.g., daily via scheduled task)
      */
-    public void checkAndAutoUpdateAllAccounts() {
-        try {
-            String sql = "SELECT customer_id FROM ca_customers";
-            PreparedStatement ps = conn.prepareStatement(sql);
+public void checkAndAutoUpdateAllAccounts() {
+    try {
+        String sql = "SELECT customer_id FROM ca_customers";
+        PreparedStatement ps = conn.prepareStatement(sql);
 
-            ResultSet rs = ps.executeQuery();
+        ResultSet rs = ps.executeQuery();
 
-            int suspendCount = 0;
-            int defaultCount = 0;
+        int restoredCount = 0;
+        int suspendCount = 0;
+        int defaultCount = 0;
 
-            while (rs.next()) {
-                int customerId = rs.getInt("customer_id");
+        while (rs.next()) {
+            int customerId = rs.getInt("customer_id");
 
-                // Check for default first (most severe)
-                if (autoMoveToDefault(customerId)) {
-                    defaultCount++;
-                } else if (autoSuspendAccount(customerId)) {
-                    suspendCount++;
-                }
+            if (autoRestoreAccount(customerId)) {
+                restoredCount++;
+            } else if (autoMoveToDefault(customerId)) {
+                defaultCount++;
+            } else if (autoSuspendAccount(customerId)) {
+                suspendCount++;
             }
+        }
 
-            System.out.println("Batch account status update complete:");
-            System.out.println("  - Accounts suspended: " + suspendCount);
-            System.out.println("  - Accounts moved to IN_DEFAULT: " + defaultCount);
+        System.out.println("Batch account status update complete:");
+        System.out.println("  - Accounts restored: " + restoredCount);
+        System.out.println("  - Accounts suspended: " + suspendCount);
+        System.out.println("  - Accounts moved to IN_DEFAULT: " + defaultCount);
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    
         }
     }
 }

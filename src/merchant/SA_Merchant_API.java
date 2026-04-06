@@ -7,7 +7,7 @@ import java.util.List;
 
 
 
-public interface SA_Merchant_API{ 
+public interface SA_Merchant_API { 
 
     double getCustomerBalance(int customerID); 
 
@@ -25,12 +25,17 @@ public interface SA_Merchant_API{
 
     boolean autoMoveToDefault(int customerID);
 
+    boolean autoRestoreAccount(int customerID);
+
     boolean managerReactivateAccount(int customerID);
+
+    boolean recordAccountPayment(int customerID, double amount);
 
     List<String> generateStatements();
 
     List<String> generateReminders();
 
     void checkAndAutoUpdateAllAccounts();
+
 
 }

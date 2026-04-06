@@ -28,4 +28,6 @@ public interface CustomerAPI {
     boolean customerExists(String accountId) throws Exception;
 
     void normaliseStatuses() throws Exception;
+    
+    void updateAccountStatuses() throws Exception;
 }
