@@ -9,24 +9,48 @@ package GUI;
  * @author laraashour
  */
 
+import stock.CA_Stock_API_Impl;
+import database.DBConnection;
+import java.sql.Connection;
+import java.util.List;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.RowFilter;
+import java.util.regex.Pattern;
+import javax.swing.JOptionPane;
+
 public class Stock extends javax.swing.JPanel {
     private javax.swing.table.TableRowSorter<javax.swing.table.DefaultTableModel> sorter;
-public Stock() {
+    private CA_Stock_API_Impl stockApi;
+    private Connection conn;
+    
+    public Stock() {
     initComponents();
     
-javax.swing.table.DefaultTableModel model =
-    (javax.swing.table.DefaultTableModel) jTable1.getModel();
+ try {
+    conn = DBConnection.getConnection();
 
-sorter = new javax.swing.table.TableRowSorter<>(model);
-jTable1.setRowSorter(sorter);
+    if (conn == null) {
+        JOptionPane.showMessageDialog(this, "Database connection failed.");
+        return;
+    }
 
+    stockApi = new CA_Stock_API_Impl(conn);
+} catch (Exception e) {
+    JOptionPane.showMessageDialog(this, "Database connection failed: " + e.getMessage());
+    e.printStackTrace();
+    return;
+}
 
+    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+    model.setRowCount(0); // remove dummy rows
 
+    sorter = new TableRowSorter<>(model);
+    jTable1.setRowSorter(sorter);
 
-
-jTable1.setRowSorter(sorter);
-
-    
+    setupSearchFilter();
 
     txtLowStock.setEditable(false);
     txtLowStock.setFocusable(false);
@@ -49,8 +73,11 @@ jTable1.setRowSorter(sorter);
     jTable1.getTableHeader().setForeground(new java.awt.Color(0, 102, 204));
     jTable1.getTableHeader().repaint();
 
-    updateLowStockAlert();
+    loadStockTable();
+    updateLowStockAlertFromBackend();
+
 }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -131,17 +158,14 @@ jTable1.setRowSorter(sorter);
         jTable1.setFont(new java.awt.Font("Helvetica Neue", 1, 12)); // NOI18N
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+
             },
             new String [] {
-                "Product ID", "Name", "Quantity", "Min Stock", "Cost Price", "Retail Price"
+                "Product ID", "Name", "Quantity", "Low Bound", "Price", "Product Type"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Float.class, java.lang.Float.class
+                java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Double.class, java.lang.String.class
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -220,7 +244,7 @@ jTable1.setRowSorter(sorter);
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, 63, Short.MAX_VALUE)
                             .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, 69, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, 61, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -231,162 +255,156 @@ jTable1.setRowSorter(sorter);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-jTextField1.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-    private void filter() {
-        String text = jTextField1.getText().trim();
 
-        if (text.isEmpty()) {
-            sorter.setRowFilter(null);
-        } else {
-            sorter.setRowFilter(javax.swing.RowFilter.regexFilter("(?i)" + java.util.regex.Pattern.quote(text), 0, 1));
-        }
-    }
-
-    public void insertUpdate(javax.swing.event.DocumentEvent e) {
-        filter();
-    }
-
-    public void removeUpdate(javax.swing.event.DocumentEvent e) {
-        filter();
-    }
-
-    public void changedUpdate(javax.swing.event.DocumentEvent e) {
-        filter();
-    }
-});
     }//GEN-LAST:event_jTextField1ActionPerformed
 
+    private void setupSearchFilter() {
+    jTextField1.getDocument().addDocumentListener(new DocumentListener() {
+        private void filter() {
+            String text = jTextField1.getText().trim();
+
+            if (text.isEmpty() || text.equalsIgnoreCase("Search by name or product ID...")) {
+                sorter.setRowFilter(null);
+            } else {
+                sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(text), 0, 1));
+            }
+        }
+
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            filter();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            filter();
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            filter();
+        }
+    });
+}
+    
+    
+    
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+
     javax.swing.JTextField txtProductId = new javax.swing.JTextField();
     javax.swing.JTextField txtName = new javax.swing.JTextField();
+    javax.swing.JTextField txtPrice = new javax.swing.JTextField();
+    javax.swing.JTextField txtVatRate = new javax.swing.JTextField();
+    javax.swing.JTextField txtProductType = new javax.swing.JTextField();
+    javax.swing.JTextField txtDescription = new javax.swing.JTextField();
     javax.swing.JTextField txtQuantity = new javax.swing.JTextField();
-    javax.swing.JTextField txtLowerBound = new javax.swing.JTextField();
-    javax.swing.JTextField txtCostPrice = new javax.swing.JTextField();
-    javax.swing.JTextField txtRetailPrice = new javax.swing.JTextField();
+    javax.swing.JTextField txtLowBound = new javax.swing.JTextField();
 
     javax.swing.JPanel panel = new javax.swing.JPanel(new java.awt.GridLayout(0, 1, 5, 5));
     panel.add(new javax.swing.JLabel("Product ID:"));
     panel.add(txtProductId);
     panel.add(new javax.swing.JLabel("Name:"));
     panel.add(txtName);
+    panel.add(new javax.swing.JLabel("Price:"));
+    panel.add(txtPrice);
+    panel.add(new javax.swing.JLabel("VAT Rate:"));
+    panel.add(txtVatRate);
+    panel.add(new javax.swing.JLabel("Product Type:"));
+    panel.add(txtProductType);
+    panel.add(new javax.swing.JLabel("Description:"));
+    panel.add(txtDescription);
     panel.add(new javax.swing.JLabel("Quantity:"));
     panel.add(txtQuantity);
-    panel.add(new javax.swing.JLabel("Lower Bound:"));
-    panel.add(txtLowerBound);
-    panel.add(new javax.swing.JLabel("Cost Price:"));
-    panel.add(txtCostPrice);
-    panel.add(new javax.swing.JLabel("Retail Price:"));
-    panel.add(txtRetailPrice);
+    panel.add(new javax.swing.JLabel("Low Bound:"));
+    panel.add(txtLowBound);
 
-    int result = javax.swing.JOptionPane.showConfirmDialog(
+    int result = JOptionPane.showConfirmDialog(
         this,
         panel,
         "Add New Stock Item",
-        javax.swing.JOptionPane.OK_CANCEL_OPTION,
-        javax.swing.JOptionPane.PLAIN_MESSAGE
+        JOptionPane.OK_CANCEL_OPTION,
+        JOptionPane.PLAIN_MESSAGE
     );
 
-    if (result == javax.swing.JOptionPane.OK_OPTION) {
-        String productId = txtProductId.getText().trim();
-        String name = txtName.getText().trim();
-        String quantityText = txtQuantity.getText().trim();
-        String lowerBoundText = txtLowerBound.getText().trim();
-        String costPriceText = txtCostPrice.getText().trim();
-        String retailPriceText = txtRetailPrice.getText().trim();
-
-        if (productId.isEmpty() || name.isEmpty() || quantityText.isEmpty()
-                || lowerBoundText.isEmpty() || costPriceText.isEmpty() || retailPriceText.isEmpty()) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Please fill in all fields.");
-            return;
-        }
-
-        if (!productId.matches("MED\\d+")) {
-            javax.swing.JOptionPane.showMessageDialog(this,
-                "Product ID must start with MED followed by numbers, e.g. MED001.");
-            return;
-        }
-
-        if (!name.matches("[A-Za-z0-9 ]{2,}")) {
-            javax.swing.JOptionPane.showMessageDialog(this,
-                "Please enter a valid stock item name.");
-            return;
-        }
-
-        int quantity;
-        int lowerBound;
-        double costPrice;
-        double retailPrice;
-
-        try {
-            quantity = Integer.parseInt(quantityText);
-            lowerBound = Integer.parseInt(lowerBoundText);
-            costPrice = Double.parseDouble(costPriceText);
-            retailPrice = Double.parseDouble(retailPriceText);
-
-            if (quantity < 0 || lowerBound < 0 || costPrice < 0 || retailPrice < 0) {
-                javax.swing.JOptionPane.showMessageDialog(this,
-                    "Quantity, lower bound, and prices must be 0 or greater.");
-                return;
-            }
-        } catch (NumberFormatException e) {
-            javax.swing.JOptionPane.showMessageDialog(this,
-                "Please enter valid numeric values for quantity, lower bound, and prices.");
-            return;
-        }
-
-        javax.swing.table.DefaultTableModel model =
-            (javax.swing.table.DefaultTableModel) jTable1.getModel();
-
-        for (int i = 0; i < model.getRowCount(); i++) {
-            Object existingId = model.getValueAt(i, 0);
-            if (existingId != null && productId.equalsIgnoreCase(existingId.toString())) {
-                javax.swing.JOptionPane.showMessageDialog(this,
-                    "Product ID already exists. Please use a unique Product ID.");
-                return;
-            }
-        }
-
-        model.addRow(new Object[]{
-            productId,
-            name,
-            quantity,
-            lowerBound,
-            costPrice,
-            retailPrice
-        });
-
-        javax.swing.JOptionPane.showMessageDialog(this, "Stock item added successfully.");
-        
-            updateLowStockAlert();
-
+    if (result != JOptionPane.OK_OPTION) {
+        return;
     }
-    
+
+    try {
+        int productId = Integer.parseInt(txtProductId.getText().trim());
+        String productName = txtName.getText().trim();
+        double price = Double.parseDouble(txtPrice.getText().trim());
+        double vatRate = Double.parseDouble(txtVatRate.getText().trim());
+        String productType = txtProductType.getText().trim();
+        String description = txtDescription.getText().trim();
+        int quantity = Integer.parseInt(txtQuantity.getText().trim());
+        int lowBound = Integer.parseInt(txtLowBound.getText().trim());
+        
+         // CHECK IF PRODUCT ALREADY EXISTS
+    if (stockApi.productExists(productId)) {
+        JOptionPane.showMessageDialog(this, "Product ID already exists. Please use a different ID.");
+        return;
+    }
+
+        if (productName.isEmpty() || productType.isEmpty() || description.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all fields.");
+            return;
+        }
+
+        if (price < 0 || vatRate < 0 || quantity < 0 || lowBound < 0) {
+            JOptionPane.showMessageDialog(this, "Numeric values must be 0 or greater.");
+            return;
+        }
+
+        boolean success = stockApi.addNewProductWithStock(
+            productId, productName, price, vatRate, productType, description, quantity, lowBound
+        );
+
+        if (success) {
+            JOptionPane.showMessageDialog(this, "New stock item added successfully.");
+            loadStockTable();
+            updateLowStockAlertFromBackend();
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to add new stock item.");
+        }
+
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "Please enter valid numeric values.");
+    }
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
     int selectedRow = jTable1.getSelectedRow();
 
     if (selectedRow == -1) {
-        javax.swing.JOptionPane.showMessageDialog(this,
-            "Please select a stock item to remove.");
+        JOptionPane.showMessageDialog(this, "Please select a stock item to remove.");
         return;
     }
 
-    int confirm = javax.swing.JOptionPane.showConfirmDialog(
+    int confirm = JOptionPane.showConfirmDialog(
         this,
         "Are you sure you want to delete this stock item?",
         "Confirm Delete",
-        javax.swing.JOptionPane.YES_NO_OPTION
+        JOptionPane.YES_NO_OPTION
     );
 
-    if (confirm == javax.swing.JOptionPane.YES_OPTION) {
-        javax.swing.table.DefaultTableModel model =
-            (javax.swing.table.DefaultTableModel) jTable1.getModel();
+    if (confirm != JOptionPane.YES_OPTION) {
+        return;
+    }
 
-        model.removeRow(selectedRow);
+    int modelRow = jTable1.convertRowIndexToModel(selectedRow);
+    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+    int productId = Integer.parseInt(model.getValueAt(modelRow, 0).toString());
 
-        javax.swing.JOptionPane.showMessageDialog(this, "Stock item removed successfully.");
-            updateLowStockAlert();
+    boolean success = stockApi.removeStock(productId);
+
+    if (success) {
+        JOptionPane.showMessageDialog(this, "Stock item removed successfully.");
+        loadStockTable();
+        updateLowStockAlertFromBackend();
+    } else {
+        JOptionPane.showMessageDialog(this, "Failed to remove stock item.");
     }
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -394,144 +412,118 @@ jTextField1.getDocument().addDocumentListener(new javax.swing.event.DocumentList
     int selectedRow = jTable1.getSelectedRow();
 
     if (selectedRow == -1) {
-        javax.swing.JOptionPane.showMessageDialog(this,
-            "Please select a stock item first.");
+        JOptionPane.showMessageDialog(this, "Please select a stock item first.");
         return;
     }
 
-    String newQuantityText = javax.swing.JOptionPane.showInputDialog(
-        this,
-        "Enter new quantity:"
-    );
+    int modelRow = jTable1.convertRowIndexToModel(selectedRow);
+    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
 
-    if (newQuantityText == null) {
-        return; // user pressed cancel
-    }
+    int productId = Integer.parseInt(model.getValueAt(modelRow, 0).toString());
 
-    newQuantityText = newQuantityText.trim();
+    String newQuantityText = JOptionPane.showInputDialog(this, "Enter new quantity:");
 
-    if (newQuantityText.isEmpty()) {
-        javax.swing.JOptionPane.showMessageDialog(this,
-            "Quantity cannot be empty.");
-        return;
-    }
+    if (newQuantityText == null) return;
 
-    int newQuantity;
     try {
-        newQuantity = Integer.parseInt(newQuantityText);
+        int newQuantity = Integer.parseInt(newQuantityText.trim());
 
         if (newQuantity < 0) {
-            javax.swing.JOptionPane.showMessageDialog(this,
-                "Quantity must be 0 or greater.");
+            JOptionPane.showMessageDialog(this, "Quantity must be 0 or greater.");
             return;
         }
+
+        boolean success = stockApi.updateStockQuantity(productId, newQuantity);
+
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Stock quantity updated successfully.");
+            loadStockTable();
+            updateLowStockAlertFromBackend();
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to update stock quantity.");
+        }
+
     } catch (NumberFormatException e) {
-        javax.swing.JOptionPane.showMessageDialog(this,
-            "Please enter a valid whole number for quantity.");
-        return;
+        JOptionPane.showMessageDialog(this, "Please enter a valid whole number.");
     }
-
-    javax.swing.table.DefaultTableModel model =
-        (javax.swing.table.DefaultTableModel) jTable1.getModel();
-
-    model.setValueAt(newQuantity, selectedRow, 2); // column 2 = Quantity
-
-    javax.swing.JOptionPane.showMessageDialog(this, "Stock quantity updated successfully.");
-    
-        updateLowStockAlert();
-        
-    
 
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-            int selectedRow = jTable1.getSelectedRow(); // change if your table name is different
+    int selectedRow = jTable1.getSelectedRow();
 
     if (selectedRow == -1) {
-        javax.swing.JOptionPane.showMessageDialog(this,
-            "Please select a product to record delivery.");
+        JOptionPane.showMessageDialog(this, "Please select a product to record delivery.");
         return;
     }
 
-    String input = javax.swing.JOptionPane.showInputDialog(
-        this,
-        "Enter delivered quantity:"
-    );
+    int modelRow = jTable1.convertRowIndexToModel(selectedRow);
+    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+    int productId = Integer.parseInt(model.getValueAt(modelRow, 0).toString());
+
+    String input = JOptionPane.showInputDialog(this, "Enter delivered quantity:");
 
     if (input == null) return;
 
-    int deliveredQty;
-
     try {
-        deliveredQty = Integer.parseInt(input);
+        int deliveredQty = Integer.parseInt(input.trim());
+
+        if (deliveredQty <= 0) {
+            JOptionPane.showMessageDialog(this, "Quantity must be greater than 0.");
+            return;
+        }
+
+        boolean success = stockApi.recordDelivery(productId, deliveredQty);
+
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Delivery recorded successfully.");
+            loadStockTable();
+            updateLowStockAlertFromBackend();
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to record delivery.");
+        }
+
     } catch (NumberFormatException e) {
-        javax.swing.JOptionPane.showMessageDialog(this,
-            "Invalid quantity.");
-        return;
+        JOptionPane.showMessageDialog(this, "Invalid quantity.");
     }
-
-    if (deliveredQty <= 0) {
-        javax.swing.JOptionPane.showMessageDialog(this,
-            "Quantity must be greater than 0.");
-        return;
-    }
-
-    javax.swing.table.DefaultTableModel model =
-        (javax.swing.table.DefaultTableModel) jTable1.getModel();
-
-    int currentQty = Integer.parseInt(model.getValueAt(selectedRow, 2).toString());
-
-    int newQty = currentQty + deliveredQty;
-
-    model.setValueAt(newQty, selectedRow, 2);
-
-    javax.swing.JOptionPane.showMessageDialog(this,
-        "Delivery recorded successfully!");
     }//GEN-LAST:event_jButton4ActionPerformed
 
-private void updateLowStockAlert() {
-    StringBuilder lowStockItems = new StringBuilder();
-    int count = 0;
-
-    javax.swing.table.DefaultTableModel model =
-        (javax.swing.table.DefaultTableModel) jTable1.getModel();
-
-    for (int i = 0; i < model.getRowCount(); i++) {
-        Object qtyObj = model.getValueAt(i, 2);   // Quantity
-        Object minObj = model.getValueAt(i, 3);   // Min Stock
-        Object nameObj = model.getValueAt(i, 1);  // Name
-
-        if (qtyObj == null || minObj == null || nameObj == null) {
-            continue;
-        }
-
-        try {
-            int quantity = Integer.parseInt(qtyObj.toString());
-            int minStock = Integer.parseInt(minObj.toString());
-            String name = nameObj.toString();
-
-            if (quantity < minStock) {
-                count++;
-                lowStockItems.append("• ")
-                             .append(name)
-                             .append(" (")
-                             .append(quantity)
-                             .append("/")
-                             .append(minStock)
-                             .append(")\n\n");
-            }
-        } catch (NumberFormatException e) {
-            // ignore bad rows
-        }
+private void updateLowStockAlertFromBackend() {
+    if (stockApi == null) {
+        txtLowStock.setText("Unable to load low stock alerts.");
+        return;
     }
 
-    if (count == 0) {
+    java.util.List<String> lowStockItems = stockApi.getLowStockItems();
+
+    if (lowStockItems.isEmpty()) {
         txtLowStock.setText("No low stock items");
     } else {
-        txtLowStock.setText("Low Stock (" + count + " items)\n\n" + lowStockItems);
+        StringBuilder sb = new StringBuilder();
+        sb.append("Low Stock (").append(lowStockItems.size()).append(" items)\n\n");
+
+        for (String item : lowStockItems) {
+            sb.append("• ").append(item).append("\n\n");
+        }
+
+        txtLowStock.setText(sb.toString());
     }
 }
 
+private void loadStockTable() {
+    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+    model.setRowCount(0);
+
+    if (stockApi == null) {
+        return;
+    }
+
+    List<Object[]> items = stockApi.getAllStockItems();
+
+    for (Object[] row : items) {
+        model.addRow(row);
+    }
+}
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel alertPanel1;

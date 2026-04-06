@@ -11,9 +11,8 @@ public class DBConnection {
 
     public static Connection getConnection() {
         try {
-
             Class.forName("org.sqlite.JDBC");
-            
+
             Connection conn = DriverManager.getConnection(URL);
 
             try (Statement stmt = conn.createStatement()) {
@@ -24,7 +23,7 @@ public class DBConnection {
             System.out.println("Connected to database");
             return conn;
 
-        } catch (SQLException e) {
+        } catch (ClassNotFoundException | SQLException e) {
             System.out.println("Connection failed");
             e.printStackTrace();
             return null;
