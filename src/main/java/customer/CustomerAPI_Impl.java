@@ -191,6 +191,102 @@ public void updateAccountStatuses() throws Exception {
         psDefault.executeUpdate();
         psNormal.executeUpdate();
     }
+}
     
+    @Override
+public boolean setDiscountPlan(String accountId, String planType, double discountValue) throws Exception {
+    int customerId = parseCustomerId(accountId);
+
+    String checkSql = "SELECT 1 FROM ca_customer_discounts WHERE customer_id = ?";
+    String insertSql = "INSERT INTO ca_customer_discounts (customer_id, plan_type, discount_value) VALUES (?, ?, ?)";
+
+    try (Connection conn = DBConnection.getConnection()) {
+        if (conn == null) {
+            throw new Exception("Database connection failed.");
+        }
+
+        try (PreparedStatement psCheck = conn.prepareStatement(checkSql)) {
+            psCheck.setInt(1, customerId);
+            try (ResultSet rs = psCheck.executeQuery()) {
+                if (rs.next()) {
+                    throw new Exception("This customer already has a discount plan. Use modify instead.");
+                }
+            }
+        }
+
+        try (PreparedStatement psInsert = conn.prepareStatement(insertSql)) {
+            psInsert.setInt(1, customerId);
+            psInsert.setString(2, planType.toUpperCase());
+            psInsert.setDouble(3, discountValue);
+            return psInsert.executeUpdate() > 0;
+        }
     }
 }
+
+    @Override
+public boolean modifyDiscountPlan(String accountId, String planType, double discountValue) throws Exception {
+    int customerId = parseCustomerId(accountId);
+
+String sql = "UPDATE ca_customer_discounts SET plan_type = ?, discount_value = ? WHERE customer_id = ?";
+    
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        if (conn == null) {
+            throw new Exception("Database connection failed.");
+        }
+
+        ps.setString(1, planType.toUpperCase());
+        ps.setDouble(2, discountValue);
+        ps.setInt(3, customerId);
+
+        return ps.executeUpdate() > 0;
+    }
+}
+
+@Override
+public boolean deleteDiscountPlan(String accountId) throws Exception {
+    int customerId = parseCustomerId(accountId);
+
+    String sql = "DELETE FROM ca_customer_discounts WHERE customer_id = ?";
+
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        if (conn == null) {
+            throw new Exception("Database connection failed.");
+        }
+
+        ps.setInt(1, customerId);
+        return ps.executeUpdate() > 0;
+    }
+  }
+
+@Override
+public String getDiscountPlan(String accountId) throws Exception {
+    int customerId = parseCustomerId(accountId);
+
+    String sql = "SELECT plan_type, discount_value FROM ca_customer_discounts WHERE customer_id = ?";
+
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        if (conn == null) {
+            throw new Exception("Database connection failed.");
+        }
+
+        ps.setInt(1, customerId);
+
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getString("plan_type") + " - " + rs.getDouble("discount_value");
+            }
+        }
+    }
+
+    return "No discount plan";
+}
+
+
+}
+

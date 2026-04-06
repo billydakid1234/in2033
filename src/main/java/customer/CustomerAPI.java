@@ -30,4 +30,12 @@ public interface CustomerAPI {
     void normaliseStatuses() throws Exception;
     
     void updateAccountStatuses() throws Exception;
+    
+    boolean setDiscountPlan(String accountId, String planType, double discountValue) throws Exception;
+
+    boolean modifyDiscountPlan(String accountId, String planType, double discountValue) throws Exception;
+
+    boolean deleteDiscountPlan(String accountId) throws Exception;
+
+    String getDiscountPlan(String accountId) throws Exception;
 }
