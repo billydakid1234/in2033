@@ -315,7 +315,7 @@
             </Component>
             <Component class="javax.swing.JTextField" name="jCatalogueSearchBar">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Search by product ID or name....."/>
+                <Property name="text" type="java.lang.String" value="Search by product name....."/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jCatalogueSearchBarActionPerformed"/>

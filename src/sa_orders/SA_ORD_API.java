@@ -244,27 +244,7 @@ public class SA_ORD_API {
     /**
      * Get catalogue
      */
-    public Map<Integer, String> getCatalogue() {
 
-        Map<Integer, String> catalogue = new HashMap<>();
-
-        try {
-            String query = "SELECT product_id, product_name FROM ca_products";
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(query);
-
-            while (rs.next()) {
-                catalogue.put(rs.getInt("product_id"), rs.getString("product_name"));
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return catalogue;
-    }
-    
-    
     
     
     

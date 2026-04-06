@@ -12,12 +12,14 @@ package GUI;
 
 import sa_orders.SA_ORD_API;
 import database.DBConnection;
+import ca_online_orders.CA_OnlineOrderAPI_Impl;
 
 
 public class Orders extends javax.swing.JPanel {
 
     private static int orderCounter = 1;
     private SA_ORD_API saOrdApi;
+    private CA_OnlineOrderAPI_Impl orderApi;
     
     
     /**
@@ -26,15 +28,25 @@ public class Orders extends javax.swing.JPanel {
     public Orders() {
         initComponents();
         
+        orderApi = new CA_OnlineOrderAPI_Impl(
+        new sa_orders.SA_ORD_API(DBConnection.getConnection()),
+        new merchant.SA_Merchant_API_Impl(DBConnection.getConnection()), 
+        new stock.CA_Stock_API_Impl(DBConnection.getConnection()),
+        DBConnection.getConnection()
+);
         saOrdApi = new SA_ORD_API(database.DBConnection.getConnection());
         loadOrders();
         loadCatalogue();
+        
+        
         
         jCatalogueSearchBar.addKeyListener(new java.awt.event.KeyAdapter() {
         public void keyReleased(java.awt.event.KeyEvent evt) {
             searchCatalogue(jCatalogueSearchBar.getText());
         }
-    });
+        });
+        
+        
         
         
     }
@@ -169,7 +181,7 @@ public class Orders extends javax.swing.JPanel {
         jLabel4.setFont(new java.awt.Font("Helvetica Neue", 1, 18)); // NOI18N
         jLabel4.setText("Search:");
 
-        jCatalogueSearchBar.setText("Search by product ID or name.....");
+        jCatalogueSearchBar.setText("Search by product name.....");
         jCatalogueSearchBar.addActionListener(this::jCatalogueSearchBarActionPerformed);
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
@@ -380,19 +392,14 @@ public class Orders extends javax.swing.JPanel {
         try {
             javax.swing.table.DefaultTableModel model =
                 (javax.swing.table.DefaultTableModel) jCatalogueTable.getModel();
-
             model.setRowCount(0);
 
-            java.util.Map<Integer, String> catalogue = saOrdApi.getCatalogue();
+            
+            String[] catalogueItems = orderApi.getMerchantCatalogue(""); // empty string = get all
 
-            for (java.util.Map.Entry<Integer, String> entry : catalogue.entrySet()) {
-                int productId = entry.getKey();
-                String productName = entry.getValue();
-
-                model.addRow(new Object[]{
-                    productId,
-                    productName
-                });
+            for (String item : catalogueItems) {
+                String[] parts = item.split(" - ", 2); // splits "id - name"
+                model.addRow(new Object[]{parts[0], parts[1]});
             }
 
         } catch (Exception e) {
@@ -402,32 +409,21 @@ public class Orders extends javax.swing.JPanel {
     
     
     private void searchCatalogue(String searchText) {
-    try {
-        javax.swing.table.DefaultTableModel model =
-            (javax.swing.table.DefaultTableModel) jCatalogueTable.getModel();
+        try {
+            javax.swing.table.DefaultTableModel model
+                    = (javax.swing.table.DefaultTableModel) jCatalogueTable.getModel();
+            model.setRowCount(0);
 
-        model.setRowCount(0);
+            String[] catalogueItems = orderApi.getMerchantCatalogue(searchText);
 
-        java.util.Map<Integer, String> catalogue = saOrdApi.getCatalogue();
-
-        for (java.util.Map.Entry<Integer, String> entry : catalogue.entrySet()) {
-            int productId = entry.getKey();
-            String productName = entry.getValue();
-
-            // case-insensitive search
-            if (String.valueOf(productId).contains(searchText) ||
-                productName.toLowerCase().contains(searchText.toLowerCase())) {
-
-                model.addRow(new Object[]{
-                    productId,
-                    productName
-                });
+            for (String item : catalogueItems) {
+                String[] parts = item.split(" - ", 2);
+                model.addRow(new Object[]{parts[0], parts[1]});
             }
-        }
 
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 }
     
     
