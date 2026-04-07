@@ -145,7 +145,7 @@ public class SA_ORD_API {
         // Check stock via Stock API
         for (Map.Entry<Integer, Integer> e : items.entrySet()) {
 
-            int stock = stockApi.getStock(e.getKey());
+            int stock = stockApi.getStockLevel(e.getKey());
 
             if (stock < e.getValue()) {
                 System.out.println("Order rejected: not enough stock for product " + e.getKey());
@@ -155,7 +155,8 @@ public class SA_ORD_API {
 
         // Reduce stock via Stock API
         for (Map.Entry<Integer, Integer> e : items.entrySet()) {
-            stockApi.updateStock(e.getKey(), -e.getValue());
+            int currentStock = stockApi.getStockLevel(e.getKey());
+            stockApi.updateStockQuantity(e.getKey(), currentStock - e.getValue());
         }
 
         // Mark order processed
