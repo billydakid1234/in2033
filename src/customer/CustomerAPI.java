@@ -38,4 +38,15 @@ public interface CustomerAPI {
     boolean deleteDiscountPlan(String accountId) throws Exception;
 
     String getDiscountPlan(String accountId) throws Exception;
+    
+    void updateReminderStatuses() throws Exception;
+    
+    int generateReminders() throws Exception;
+    
+    void clearReminderStatusesIfPaid(String accountId) throws Exception;
+    
+
+
+
+
 }

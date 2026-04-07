@@ -8,6 +8,8 @@ package customer;
  *
  * @author laraashour
  */
+
+
 public class Customer {
 
     private String accountId;
@@ -18,10 +20,23 @@ public class Customer {
     private double creditLimit;
     private String accountStatus;
     private double outstandingBalance;
+    private String firstReminderStatus;
+    private String secondReminderStatus;
+    private String firstReminderDate;
+    private String secondReminderDate;
 
-    public Customer(String accountId, String firstName, String surname, String email,
-                    String phone, double creditLimit, String accountStatus,
-                    double outstandingBalance) {
+    public Customer(String accountId,
+                    String firstName,
+                    String surname,
+                    String email,
+                    String phone,
+                    double creditLimit,
+                    String accountStatus,
+                    double outstandingBalance,
+                    String firstReminderStatus,
+                    String secondReminderStatus,
+                    String firstReminderDate,
+                    String secondReminderDate) {
         this.accountId = accountId;
         this.firstName = firstName;
         this.surname = surname;
@@ -30,6 +45,10 @@ public class Customer {
         this.creditLimit = creditLimit;
         this.accountStatus = accountStatus;
         this.outstandingBalance = outstandingBalance;
+        this.firstReminderStatus = firstReminderStatus;
+        this.secondReminderStatus = secondReminderStatus;
+        this.firstReminderDate = firstReminderDate;
+        this.secondReminderDate = secondReminderDate;
     }
 
     public String getAccountId() {
@@ -71,5 +90,20 @@ public class Customer {
         return outstandingBalance;
     }
 
-    
+    public String getFirstReminderStatus() {
+        return firstReminderStatus;
+    }
+
+    public String getSecondReminderStatus() {
+        return secondReminderStatus;
+    }
+
+    public String getFirstReminderDate() {
+        return firstReminderDate;
+    }
+
+    public String getSecondReminderDate() {
+        return secondReminderDate;
+    }
+
 }

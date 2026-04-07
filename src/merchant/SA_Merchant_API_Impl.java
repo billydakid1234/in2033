@@ -425,7 +425,7 @@ public boolean recordAccountPayment(int customerID, double amount) {
     return false;
 }
 
-• // NOTE FROM LUKE:
+ // NOTE FROM LUKE:
     // On the Sales screen, the frontend already calls the correct backend payment method
     // depending on whether the customer pays by CARD or CASH.
     //
@@ -456,9 +456,9 @@ public boolean recordAccountPayment(int customerID, double amount) {
     //        }
     //    }
 
-    System.out.println("Next backend step: insert into ca_sales, ca_sale_items, and ca_payments.");
-    return true;
-}
+    //System.out.println("Next backend step: insert into ca_sales, ca_sale_items, and ca_payments.");
+   // return true;
+//}
 
     /**
      * statement making
@@ -685,5 +685,28 @@ public void checkAndAutoUpdateAllAccounts() {
         e.printStackTrace();
     
         }
-    }
 }
+    
+    
+    @Override
+public boolean recordCustomerPurchase(int customerID, List<Object[]> saleItems, double totalAmount, String paymentMethod) {
+    System.out.println("Recording customer purchase");
+    System.out.println("Customer ID: " + customerID);
+    System.out.println("Total Amount: " + totalAmount);
+    System.out.println("Payment Method: " + paymentMethod);
+
+    if (saleItems != null) {
+        for (Object[] item : saleItems) {
+            Object productId = item.length > 0 ? item[0] : null;
+            Object quantity = item.length > 1 ? item[1] : null;
+            Object unitPrice = item.length > 2 ? item[2] : null;
+
+            System.out.println("Product ID: " + productId
+                    + ", Quantity: " + quantity
+                    + ", Unit Price: " + unitPrice);
+        }
+    }
+
+    return true;
+}
+    }

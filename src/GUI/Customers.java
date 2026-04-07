@@ -119,6 +119,7 @@ public Customers(String role) {
         jButton7 = new javax.swing.JButton();
         jButton8 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
+        jButton9 = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setFont(new java.awt.Font("Helvetica Neue", 1, 24)); // NOI18N
@@ -203,6 +204,12 @@ public Customers(String role) {
         jButton4.setText("Reactivate Account");
         jButton4.addActionListener(this::jButton4ActionPerformed);
 
+        jButton9.setBackground(new java.awt.Color(0, 0, 51));
+        jButton9.setFont(new java.awt.Font("Helvetica Neue", 1, 18)); // NOI18N
+        jButton9.setForeground(new java.awt.Color(255, 255, 255));
+        jButton9.setText("Generate Reminders");
+        jButton9.addActionListener(this::jButton9ActionPerformed);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -231,7 +238,10 @@ public Customers(String role) {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 203, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 203, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(684, 684, 684)
+                                .addComponent(jButton9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
                 .addContainerGap(469, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -242,7 +252,9 @@ public Customers(String role) {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(21, 21, 21)
+                .addContainerGap()
+                .addComponent(jButton9, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -255,7 +267,7 @@ public Customers(String role) {
                     .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(22, 22, 22)
+                .addGap(79, 79, 79)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -284,7 +296,7 @@ public Customers(String role) {
                 .addComponent(CustomerJpanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(31, 31, 31)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(55, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -671,22 +683,23 @@ public Customers(String role) {
         return;
     }
 
-    try {
-        int customerId = Integer.parseInt(accountId.substring(3));
+try {
+    int customerId = Integer.parseInt(accountId.substring(3));
 
-        boolean paid = merchantAPI.recordAccountPayment(customerId, amount);
+    boolean paid = merchantAPI.recordAccountPayment(customerId, amount);
 
-        if (paid) {
-            merchantAPI.checkAndAutoUpdateAllAccounts();
-            JOptionPane.showMessageDialog(this, "Payment recorded successfully.");
-            loadCustomersTable();
-        } else {
-            JOptionPane.showMessageDialog(this, "Failed to record payment.");
-        }
-
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, e.getMessage());
+    if (paid) {
+        customerAPI.clearReminderStatusesIfPaid(accountId);
+        merchantAPI.checkAndAutoUpdateAllAccounts();
+        JOptionPane.showMessageDialog(this, "Payment recorded successfully.");
+        loadCustomersTable();
+    } else {
+        JOptionPane.showMessageDialog(this, "Failed to record payment.");
     }
+
+} catch (Exception e) {
+    JOptionPane.showMessageDialog(this, e.getMessage());
+}
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
@@ -791,6 +804,27 @@ public Customers(String role) {
         JOptionPane.showMessageDialog(this, e.getMessage());
     }
     }//GEN-LAST:event_jButton8ActionPerformed
+
+    private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
+            try {
+        int generated = customerAPI.generateReminders();
+
+        if (generated > 0) {
+            JOptionPane.showMessageDialog(this,
+                generated + " reminder(s) generated successfully.");
+        } else {
+            JOptionPane.showMessageDialog(this,
+                "No reminders were due to be generated.");
+        }
+
+        loadCustomersTable();
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this,
+            "Error generating reminders: " + e.getMessage());
+    }
+
+    }//GEN-LAST:event_jButton9ActionPerformed
 
     private void showReminderLetter(String customerName, String accountId, String balance) {
         String reminderText =
@@ -916,6 +950,7 @@ model.addRow(new Object[]{
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
+    private javax.swing.JButton jButton9;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
