@@ -1,11 +1,7 @@
 package merchant;
 
-
-
+import java.sql.SQLException;
 import java.util.List;
-
-
-
 
 public interface SA_Merchant_API { 
 
@@ -39,5 +35,15 @@ public interface SA_Merchant_API {
 
     void checkAndAutoUpdateAllAccounts();
 
+    double getTotalSales() throws SQLException;
 
+    int getTransactionCount() throws SQLException;
+
+    int getOrdersPlacedCount() throws SQLException;
+
+    List<Object[]> getTopSellingProducts() throws SQLException;
+
+    List<Object[]> getSalesReportRows() throws SQLException;
 }
+
+

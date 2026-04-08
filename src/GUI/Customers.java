@@ -848,7 +848,7 @@ try {
             + "We would appreciate payment at your earliest convenience.\n\n"
             + "If you have already sent a payment to us recently, please accept our apologies.\n\n"
             + "Yours sincerely,\n\n"
-            + "A. Pettie, Director of Operations, InfoPharma Ltd.\n\n"
+            + "PharmaTech\n\n"
             + "------------------------------------------------------------\n\n"
             + "SECOND REMINDER - INVOICE NO: 197362\n\n"
             + "IPOS Account: " + accountId + "            Total Amount: " + balance + "\n\n"
@@ -857,7 +857,7 @@ try {
             + "We would appreciate it if you would settle this invoice in full by return.\n\n"
             + "If you have already sent a payment to us recently, please accept our apologies.\n\n"
             + "Yours sincerely,\n\n"
-            + "A. Pettie, Director of Operations, InfoPharma Ltd.";
+            + "PharmaTech";
 
         javax.swing.JTextArea textArea = new javax.swing.JTextArea(reminderText);
         textArea.setEditable(false);

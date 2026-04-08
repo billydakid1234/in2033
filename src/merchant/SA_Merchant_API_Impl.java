@@ -39,6 +39,8 @@ public class SA_Merchant_API_Impl implements SA_Merchant_API {
         ResultSet rs = ps.executeQuery();
         return rs.next() ? rs.getInt("next_id") : 1;
     }
+    
+    
 
     /**
      * PROCESS CREDIT PAYMENT
@@ -802,5 +804,96 @@ public boolean recordCustomerPurchase(int customerID, List<Object[]> saleItems, 
         } catch (SQLException ignored) {
         }
     }
+    
 }
+
+    
+    
+    @Override
+public double getTotalSales() throws SQLException {
+    String sql = "SELECT COALESCE(SUM(total_amount), 0) AS total_sales FROM ca_sales";
+    PreparedStatement ps = conn.prepareStatement(sql);
+    ResultSet rs = ps.executeQuery();
+    return rs.next() ? rs.getDouble("total_sales") : 0.0;
+}
+
+@Override
+public int getTransactionCount() throws SQLException {
+    String sql = "SELECT COUNT(*) AS transaction_count FROM ca_sales";
+    PreparedStatement ps = conn.prepareStatement(sql);
+    ResultSet rs = ps.executeQuery();
+    return rs.next() ? rs.getInt("transaction_count") : 0;
+}
+
+@Override
+public int getOrdersPlacedCount() throws SQLException {
+    String sql = "SELECT COUNT(*) AS order_count FROM ca_online_orders";
+    PreparedStatement ps = conn.prepareStatement(sql);
+    ResultSet rs = ps.executeQuery();
+    return rs.next() ? rs.getInt("order_count") : 0;
+}
+
+@Override
+public List<Object[]> getTopSellingProducts() throws SQLException {
+    List<Object[]> rows = new ArrayList<>();
+
+    String sql =
+        "SELECT p.product_name, " +
+        "       SUM(si.quantity) AS units_sold, " +
+        "       SUM(si.quantity * si.unit_price) AS revenue " +
+        "FROM ca_sale_items si " +
+        "JOIN ca_products p ON si.product_id = p.product_id " +
+        "GROUP BY p.product_id, p.product_name " +
+        "ORDER BY units_sold DESC, revenue DESC " +
+        "LIMIT 10";
+
+    PreparedStatement ps = conn.prepareStatement(sql);
+    ResultSet rs = ps.executeQuery();
+
+    while (rs.next()) {
+        rows.add(new Object[] {
+            rs.getString("product_name"),
+            rs.getInt("units_sold"),
+            rs.getDouble("revenue")
+        });
     }
+
+    return rows;
+}
+
+
+
+@Override
+public List<Object[]> getSalesReportRows() throws SQLException {
+    List<Object[]> rows = new ArrayList<>();
+
+    String sql =
+        "SELECT s.sale_id, " +
+        "       DATE(s.sale_date) AS sale_date, " +
+        "       CASE WHEN s.customer_id IS NULL THEN 'Occasional Customer' ELSE 'Account Holder' END AS customer_type, " +
+        "       COALESCE(p.payment_method, CASE WHEN s.payment_deferred = 1 THEN 'ACCOUNT' ELSE 'UNKNOWN' END) AS payment_method, " +
+        "       s.total_amount " +
+        "FROM ca_sales s " +
+        "LEFT JOIN ca_payments p ON s.sale_id = p.sale_id " +
+        "ORDER BY s.sale_date DESC, s.sale_id DESC";
+
+    PreparedStatement ps = conn.prepareStatement(sql);
+    ResultSet rs = ps.executeQuery();
+
+    while (rs.next()) {
+        rows.add(new Object[] {
+            "SAL-" + rs.getInt("sale_id"),
+            rs.getString("sale_date"),
+            rs.getString("customer_type"),
+            rs.getString("payment_method"),
+            String.format("£%.2f", rs.getDouble("total_amount"))
+        });
+    }
+
+    return rows;
+}
+    
+}
+
+
+    

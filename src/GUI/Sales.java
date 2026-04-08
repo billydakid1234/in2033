@@ -543,9 +543,6 @@ public class Sales extends javax.swing.JPanel {
         jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] {
             "Occasional Customer", "Account Holder"
         }));
-        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] {
-            "Cash", "Card"
-        }));
 
         jTextField2.setText("");
         cardDetailsCaptured = false;
@@ -553,6 +550,7 @@ public class Sales extends javax.swing.JPanel {
         jTable1.setRowHeight(24);
         jTable1.getTableHeader().setReorderingAllowed(false);
         updateAccountIdVisibility();
+        updatePaymentMethodOptions();
         updateSummary();
     }
 
@@ -653,6 +651,24 @@ public class Sales extends javax.swing.JPanel {
         if ("Account Holder".equals(String.valueOf(jComboBox2.getSelectedItem()))
                 && jTextField2.getText().trim().isEmpty()) {
             javax.swing.JOptionPane.showMessageDialog(this, "Enter an account ID for account holder sales.");
+            return;
+        }
+
+        if ("Credit".equals(String.valueOf(jComboBox5.getSelectedItem()))
+                && !"Account Holder".equals(String.valueOf(jComboBox2.getSelectedItem()))) {
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Credit payment is only available for account holder sales."
+            );
+            return;
+        }
+
+        if ("Credit".equals(String.valueOf(jComboBox5.getSelectedItem()))
+                && jTextField2.getText().trim().isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Enter an account ID before using Credit payment."
+            );
             return;
         }
 
@@ -938,7 +954,7 @@ public class Sales extends javax.swing.JPanel {
 
         return "Payment Method: " + paymentDetails
             + "\n\nThank you for your valued custom. We look forward to receiving your payment in due course."
-            + "\n\nYours sincerely,\n\nJ. Faith";
+            + "\n\nYours sincerely,\n\nPharmaTech";
     }
 
     private javax.swing.JPanel buildTotalsPanel() {
@@ -991,8 +1007,35 @@ public class Sales extends javax.swing.JPanel {
         if (!isAccountHolder) {
             jTextField2.setText("");
         }
+        updatePaymentMethodOptions();
         revalidate();
         repaint();
+    }
+
+    private void updatePaymentMethodOptions() {
+        boolean isAccountHolder = "Account Holder".equals(String.valueOf(jComboBox2.getSelectedItem()));
+        String previousSelection = String.valueOf(jComboBox5.getSelectedItem());
+
+        if (isAccountHolder) {
+            jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] {
+                "Cash", "Card", "Credit"
+            }));
+        } else {
+            jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] {
+                "Cash", "Card"
+            }));
+        }
+
+        if (previousSelection != null) {
+            for (int i = 0; i < jComboBox5.getItemCount(); i++) {
+                if (previousSelection.equals(jComboBox5.getItemAt(i))) {
+                    jComboBox5.setSelectedItem(previousSelection);
+                    return;
+                }
+            }
+        }
+
+        jComboBox5.setSelectedIndex(0);
     }
 
     private void handlePaymentMethodSelection() {

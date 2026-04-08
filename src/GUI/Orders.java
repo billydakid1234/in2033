@@ -540,7 +540,7 @@ public class Orders extends javax.swing.JPanel {
         tablePanel.add(totalsRow, java.awt.BorderLayout.SOUTH);
 
         javax.swing.JTextArea closingArea = new javax.swing.JTextArea(
-            "\nThank you for your order. This confirms your purchase from InfoPharma.\n\nYours sincerely,\n\nJ. Faith"
+            "\nThank you for your order. This confirms your purchase from InfoPharma.\n\nYours sincerely,\n\nPharmaTech"
         );
         closingArea.setEditable(false);
         closingArea.setOpaque(false);

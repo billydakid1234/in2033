@@ -8,6 +8,14 @@ package GUI;
  *
  * @author LukeBravermanCityUniversity
  */
+
+import database.DBConnection;
+import java.sql.SQLException;
+import java.util.List;
+import javax.swing.table.DefaultTableModel;
+import merchant.SA_Merchant_API;
+import merchant.SA_Merchant_API_Impl;
+
 public class Reports extends javax.swing.JPanel {
     private static final Object[][] REPORT_SALES_DATA = {
         {"INV-1001", "2026-03-28", "Occasional Customer", "Cash", "£18.60"},
@@ -16,13 +24,20 @@ public class Reports extends javax.swing.JPanel {
         {"INV-1004", "2026-03-27", "Account Holder", "Cash", "£37.80"},
         {"INV-1005", "2026-03-26", "Occasional Customer", "Cash", "£24.48"}
     };
+    
+    private final SA_Merchant_API merchantAPI = new SA_Merchant_API_Impl(DBConnection.getConnection());
 
+    private String formatCurrency(double value) {
+    return String.format("£%.2f", value);
+}
+    
     /**
      * Creates new form Reports
      */
-    public Reports() {
-        initComponents();
-    }
+public Reports() {
+    initComponents();
+    loadReportData();
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -249,23 +264,35 @@ public class Reports extends javax.swing.JPanel {
         showReportPreviewDialog();
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void showReportPreviewDialog() {
-        javax.swing.JDialog dialog = new javax.swing.JDialog(
-            (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this),
-            "Sales Report Preview",
-            true
-        );
-        dialog.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+private void showReportPreviewDialog() {
+    javax.swing.JDialog dialog = new javax.swing.JDialog(
+        (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this),
+        "Sales Report Preview",
+        true
+    );
+    dialog.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        javax.swing.table.DefaultTableModel reportModel = new javax.swing.table.DefaultTableModel(
-            REPORT_SALES_DATA,
-            new String[] {"Invoice ID", "Date", "Customer Type", "Payment Method", "Sale Total"}
-        ) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
+    DefaultTableModel reportModel = new DefaultTableModel(
+        new Object[][] {},
+        new String[] {"Invoice ID", "Date", "Customer Type", "Payment Method", "Sale Total"}
+    ) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+
+    try {
+        List<Object[]> rows = merchantAPI.getSalesReportRows();
+        for (Object[] row : rows) {
+            reportModel.addRow(row);
+        }
+    } catch (SQLException e) {
+        javax.swing.JOptionPane.showMessageDialog(
+            this,
+            "Error building sales report: " + e.getMessage()
+        );
+    }
 
         javax.swing.JTable reportTable = new javax.swing.JTable(reportModel);
         reportTable.setRowHeight(24);
@@ -280,20 +307,12 @@ public class Reports extends javax.swing.JPanel {
         summaryArea.setFont(new java.awt.Font("Monospaced", java.awt.Font.PLAIN, 13));
 
         javax.swing.JButton printButton = new javax.swing.JButton("Print");
-        printButton.addActionListener(e -> javax.swing.JOptionPane.showMessageDialog(
-            dialog,
-            "Report sent to print queue.",
-            "Print Report",
-            javax.swing.JOptionPane.INFORMATION_MESSAGE
-        ));
+        printButton.addActionListener(e -> printTable(reportTable));
+        
 
         javax.swing.JButton exportButton = new javax.swing.JButton("Export");
-        exportButton.addActionListener(e -> javax.swing.JOptionPane.showMessageDialog(
-            dialog,
-            "Report exported successfully.",
-            "Export Report",
-            javax.swing.JOptionPane.INFORMATION_MESSAGE
-        ));
+        exportButton.addActionListener(e -> exportTableToCSV(reportTable));
+        
 
         javax.swing.JButton closeButton = new javax.swing.JButton("Close");
         closeButton.addActionListener(e -> dialog.dispose());
@@ -315,13 +334,137 @@ public class Reports extends javax.swing.JPanel {
         dialog.setVisible(true);
     }
 
-    private String buildReportSummary() {
+
+private String buildReportSummary() {
+    try {
+        double totalSales = merchantAPI.getTotalSales();
+        int transactions = merchantAPI.getTransactionCount();
+        int ordersPlaced = merchantAPI.getOrdersPlacedCount();
+
         return "Sales Report\n"
-            + "Period: 26 Mar 2026 - 28 Mar 2026\n"
-            + "Total Sales: £134.16\n"
-            + "Transactions: 5\n"
-            + "Payment Breakdown: Cash 3, Card 2";
+            + "Total Sales: " + formatCurrency(totalSales) + "\n"
+            + "Transactions: " + transactions + "\n"
+            + "Orders Placed: " + ordersPlaced;
+    } catch (SQLException e) {
+        return "Sales Report\nError loading summary: " + e.getMessage();
     }
+}
+    
+    private void loadReportData() {
+    try {
+        double totalSales = merchantAPI.getTotalSales();
+        int transactions = merchantAPI.getTransactionCount();
+        int ordersPlaced = merchantAPI.getOrdersPlacedCount();
+        List<Object[]> topProducts = merchantAPI.getTopSellingProducts();
+
+        jLabel1.setText(formatCurrency(totalSales));
+        jLabel6.setText(String.valueOf(transactions));
+        jLabel8.setText(String.valueOf(ordersPlaced));
+
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0);
+
+        for (Object[] row : topProducts) {
+            model.addRow(new Object[] {
+                row[0],
+                row[1],
+                row[2]
+            });
+        }
+
+    } catch (SQLException e) {
+        javax.swing.JOptionPane.showMessageDialog(
+            this,
+            "Error loading reports: " + e.getMessage()
+        );
+    }
+ }
+    
+private void exportTableToCSV(javax.swing.JTable table) {
+    javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
+    fileChooser.setDialogTitle("Save Report");
+
+    int userSelection = fileChooser.showSaveDialog(this);
+
+    if (userSelection == javax.swing.JFileChooser.APPROVE_OPTION) {
+        java.io.File fileToSave = fileChooser.getSelectedFile();
+
+        // Ensure .csv extension
+        if (!fileToSave.getName().toLowerCase().endsWith(".csv")) {
+            fileToSave = new java.io.File(fileToSave.getAbsolutePath() + ".csv");
+        }
+
+        try (java.io.PrintWriter pw = new java.io.PrintWriter(fileToSave)) {
+
+            javax.swing.table.TableModel model = table.getModel();
+
+            // Write column headers
+            for (int i = 0; i < model.getColumnCount(); i++) {
+                pw.print(model.getColumnName(i));
+                if (i < model.getColumnCount() - 1) pw.print(",");
+            }
+            pw.println();
+
+            // Write rows
+            for (int i = 0; i < model.getRowCount(); i++) {
+                for (int j = 0; j < model.getColumnCount(); j++) {
+                    pw.print(model.getValueAt(i, j));
+                    if (j < model.getColumnCount() - 1) pw.print(",");
+                }
+                pw.println();
+            }
+
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Report exported successfully!",
+                "Success",
+                javax.swing.JOptionPane.INFORMATION_MESSAGE
+            );
+
+        } catch (Exception ex) {
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Error exporting report: " + ex.getMessage(),
+                "Error",
+                javax.swing.JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+}
+
+private void printTable(javax.swing.JTable table) {
+    try {
+        boolean printed = table.print(
+            javax.swing.JTable.PrintMode.FIT_WIDTH,
+            new java.text.MessageFormat("Sales Report"),
+            new java.text.MessageFormat("Page {0}")
+        );
+
+        if (printed) {
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Print job sent successfully.",
+                "Print",
+                javax.swing.JOptionPane.INFORMATION_MESSAGE
+            );
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "No printer was selected or no printer is available on this device.",
+                "Print",
+                javax.swing.JOptionPane.WARNING_MESSAGE
+            );
+        }
+
+    } catch (java.awt.print.PrinterException ex) {
+        javax.swing.JOptionPane.showMessageDialog(
+            this,
+            "Printing is not available on this device: " + ex.getMessage(),
+            "Print Error",
+            javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+    }
+}
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
