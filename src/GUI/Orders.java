@@ -43,6 +43,8 @@ public class Orders extends javax.swing.JPanel {
         );
         */
         
+        loadLoggedInBalance();
+        
         saOrdApi = new SA_ORD_API(database.DBConnection.getConnection());
         loginApi = new SA_LOGIN_API();
         customerApi = new CustomerAPI_Impl();
@@ -235,7 +237,6 @@ public class Orders extends javax.swing.JPanel {
 
         jLabel3.setBackground(new java.awt.Color(239, 239, 239));
         jLabel3.setFont(new java.awt.Font("Helvetica Neue", 0, 24)); // NOI18N
-        jLabel3.setText("£0.00");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -442,7 +443,7 @@ public class Orders extends javax.swing.JPanel {
 
 }
 
-    /* code for balance
+    //code for balance
     private void loadLoggedInBalance() {
         try {
             String username = loginApi.getCurrentLoggedInUsername();
@@ -453,7 +454,7 @@ public class Orders extends javax.swing.JPanel {
             e.printStackTrace();
         }
     }
-    */
+    
     
     
     public static String generateOrderID(){

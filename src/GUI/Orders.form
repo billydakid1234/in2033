@@ -407,7 +407,6 @@
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Helvetica Neue" size="24" style="0"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="&#xa3;0.00"/>
                   </Properties>
                 </Component>
               </SubComponents>
