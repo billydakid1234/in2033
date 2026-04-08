@@ -54,6 +54,7 @@ public MainWindow(String role) {
         btnCustomers = new javax.swing.JButton();
         btnStaff = new javax.swing.JButton();
         btnOnlineOrders = new javax.swing.JButton();
+        btnTemplates = new javax.swing.JButton();
         contentPanel = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -145,6 +146,14 @@ public MainWindow(String role) {
         btnOnlineOrders.setBorderPainted(false);
         btnOnlineOrders.addActionListener(this::btnOnlineOrdersActionPerformed);
 
+        btnTemplates.setBackground(new java.awt.Color(0, 0, 51));
+        btnTemplates.setFont(new java.awt.Font("Helvetica Neue", 1, 20)); // NOI18N
+        btnTemplates.setForeground(new java.awt.Color(255, 255, 255));
+        btnTemplates.setText("Templates");
+        btnTemplates.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        btnTemplates.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnTemplates.addActionListener(this::btnTemplatesActionPerformed);
+
         javax.swing.GroupLayout sidebarPanelLayout = new javax.swing.GroupLayout(sidebarPanel);
         sidebarPanel.setLayout(sidebarPanelLayout);
         sidebarPanelLayout.setHorizontalGroup(
@@ -158,11 +167,7 @@ public MainWindow(String role) {
             .addComponent(btnCustomers, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(sidebarPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(sidebarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnStaff, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, sidebarPanelLayout.createSequentialGroup()
-                        .addComponent(btnReports, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addContainerGap())))
+                .addComponent(btnStaff, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, sidebarPanelLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(lbMenu, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -171,6 +176,8 @@ public MainWindow(String role) {
                 .addGap(21, 21, 21)
                 .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 268, Short.MAX_VALUE)
                 .addContainerGap())
+            .addComponent(btnReports, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btnTemplates, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         sidebarPanelLayout.setVerticalGroup(
             sidebarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -194,10 +201,12 @@ public MainWindow(String role) {
                 .addGap(18, 18, 18)
                 .addComponent(btnReports, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
+                .addComponent(btnTemplates, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addComponent(btnStaff, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(62, 62, 62)
                 .addComponent(btnLogout, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(111, Short.MAX_VALUE))
+                .addContainerGap(32, Short.MAX_VALUE))
         );
 
         contentPanel.setLayout(new java.awt.BorderLayout());
@@ -288,6 +297,20 @@ public MainWindow(String role) {
 
     }//GEN-LAST:event_btnOnlineOrdersActionPerformed
 
+    private void btnTemplatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTemplatesActionPerformed
+    
+    if (userRole == null || !userRole.equalsIgnoreCase("Manager")) {
+        javax.swing.JOptionPane.showMessageDialog(this,
+            "Access denied. Only managers can access templates.");
+        return;
+    }
+
+    contentPanel.removeAll();
+    contentPanel.add(new Templates(), java.awt.BorderLayout.CENTER);
+    contentPanel.revalidate();
+    contentPanel.repaint();
+    }//GEN-LAST:event_btnTemplatesActionPerformed
+
     
 
     
@@ -311,6 +334,7 @@ public MainWindow(String role) {
     private javax.swing.JButton btnSales;
     private javax.swing.JButton btnStaff;
     private javax.swing.JButton btnStock;
+    private javax.swing.JButton btnTemplates;
     private javax.swing.JPanel contentPanel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel lbMenu;
