@@ -708,10 +708,10 @@ public void checkAndAutoUpdateAllAccounts() {
     
     
 @Override
-public int recordCustomerPurchase(int customerID, List<Object[]> saleItems, double totalAmount, String paymentMethod) {
+public boolean recordCustomerPurchase(int customerID, List<Object[]> saleItems, double totalAmount, String paymentMethod) {
     if (saleItems == null || saleItems.isEmpty()) {
         System.out.println("Sale recording failed: no sale items supplied");
-        return -1;
+        return false;
     }
 
     boolean previousAutoCommit = true;
@@ -782,13 +782,13 @@ public int recordCustomerPurchase(int customerID, List<Object[]> saleItems, doub
         if (insertedItems == 0) {
             conn.rollback();
             System.out.println("Sale recording failed: no valid items supplied");
-            return -1;
+            return false;
         }
 
         itemPs.executeBatch();
         conn.commit();
         System.out.println("Sale recorded successfully. Sale ID: " + saleId + ", items: " + insertedItems);
-        return saleId;
+        return true;
 
     } catch (SQLException e) {
         try {
@@ -797,7 +797,7 @@ public int recordCustomerPurchase(int customerID, List<Object[]> saleItems, doub
             rollbackEx.printStackTrace();
         }
         e.printStackTrace();
-        return -1;
+        return false;
     } finally {
         try {
             conn.setAutoCommit(previousAutoCommit);

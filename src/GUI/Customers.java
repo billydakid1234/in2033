@@ -17,6 +17,9 @@ import customer.CustomerAPI_Impl;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import templates.TemplateAPI;
+import templates.TemplateAPI_Impl;
+
 
 import database.DBConnection;
 import merchant.SA_Merchant_API_Impl;
@@ -27,7 +30,8 @@ public class Customers extends javax.swing.JPanel {
     private String userRole;
     private final CustomerAPI customerAPI = new CustomerAPI_Impl();
     private SA_Merchant_API_Impl merchantAPI; 
-
+    private final TemplateAPI templateAPI = new TemplateAPI_Impl();
+    
     /**
      * Creates new form Customers
      */
@@ -806,58 +810,52 @@ try {
     }//GEN-LAST:event_jButton8ActionPerformed
 
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
-            try {
-        int generated = customerAPI.generateReminders();
+    int selectedRow = jTable1.getSelectedRow();
 
-        if (generated > 0) {
-            JOptionPane.showMessageDialog(this,
-                generated + " reminder(s) generated successfully.");
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Please select a customer first.");
+        return;
+    }
+
+    String accountId = jTable1.getValueAt(selectedRow, 0).toString();
+    String customerName = jTable1.getValueAt(selectedRow, 1).toString();
+    String balance = jTable1.getValueAt(selectedRow, 6).toString();
+    String status = jTable1.getValueAt(selectedRow, 5).toString();
+
+    try {
+        customerAPI.generateReminders();
+
+        if ("SUSPENDED".equalsIgnoreCase(status)) {
+            showReminderLetter("reminder_first", customerName, accountId, balance);
+        } else if ("IN_DEFAULT".equalsIgnoreCase(status)) {
+            showReminderLetter("reminder_second", customerName, accountId, balance);
         } else {
             JOptionPane.showMessageDialog(this,
-                "No reminders were due to be generated.");
+                "This customer does not currently need a reminder.");
         }
 
-        loadCustomersTable();
-
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(this,
-            "Error generating reminders: " + e.getMessage());
+        JOptionPane.showMessageDialog(this, "Error generating reminders: " + e.getMessage());
     }
 
     }//GEN-LAST:event_jButton9ActionPerformed
 
-    private void showReminderLetter(String customerName, String accountId, String balance) {
-        String reminderText =
-            "InfoPharma ORDERING SYSTEM STUDENT'S BRIEF\n\n"
-            + "9.6 Appendix 6: Payment overdue Reminders\n\n"
-            + "Client: " + customerName + "\n"
-            + "3, High Level Drive,\n"
-            + "Sydenham,\n"
-            + "SE26 3ET\n"
-            + "Phone: 0208 778 0124\n"
-            + "Fax: 0208 778 0125\n\n"
-            + "InfoPharma Ltd.,\n"
-            + "19 High St.,\n"
-            + "Ashford,\n"
-            + "Kent\n\n"
-            + "Dear Client,\n\n"
-            + "REMINDER - INVOICE NO: 197362\n\n"
-            + "IPOS Account: " + accountId + "            Total Amount: " + balance + "\n\n"
-            + "According to our records, it appears that we have not yet received payment "
-            + "of the above invoice, which was raised against " + customerName + ".\n\n"
-            + "We would appreciate payment at your earliest convenience.\n\n"
-            + "If you have already sent a payment to us recently, please accept our apologies.\n\n"
-            + "Yours sincerely,\n\n"
-            + "PharmaTech\n\n"
-            + "------------------------------------------------------------\n\n"
-            + "SECOND REMINDER - INVOICE NO: 197362\n\n"
-            + "IPOS Account: " + accountId + "            Total Amount: " + balance + "\n\n"
-            + "It appears that we still have not yet received payment of the above invoice "
-            + "despite the earlier reminder.\n\n"
-            + "We would appreciate it if you would settle this invoice in full by return.\n\n"
-            + "If you have already sent a payment to us recently, please accept our apologies.\n\n"
-            + "Yours sincerely,\n\n"
-            + "PharmaTech";
+private void showReminderLetter(String templateKey, String customerName, String accountId, String balance) {
+    try {
+        String template = templateAPI.getTemplate(templateKey);
+        String pharmacyName = templateAPI.getTemplate("pharmacy_name");
+        String pharmacyAddress = templateAPI.getTemplate("pharmacy_address");
+        String pharmacyEmail = templateAPI.getTemplate("pharmacy_email");
+        String pharmacyPhone = templateAPI.getTemplate("pharmacy_phone");
+
+        String reminderText = template
+            .replace("{invoice_no}", "197362")
+            .replace("{account_id}", accountId)
+            .replace("{balance}", balance)
+            .replace("{pharmacy_name}", pharmacyName)
+            .replace("{pharmacy_address}", pharmacyAddress)
+            .replace("{pharmacy_email}", pharmacyEmail)
+            .replace("{pharmacy_phone}", pharmacyPhone);
 
         javax.swing.JTextArea textArea = new javax.swing.JTextArea(reminderText);
         textArea.setEditable(false);
@@ -876,7 +874,11 @@ try {
             "Customer Payment Reminder",
             JOptionPane.PLAIN_MESSAGE
         );
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error loading reminder template: " + e.getMessage());
     }
+}
 
     private void loadCustomersTable() {
     try {

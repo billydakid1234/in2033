@@ -10,6 +10,8 @@ import java.util.List;
 import merchant.SA_Merchant_API;
 import merchant.SA_Merchant_API_Impl;
 import sa_orders.SA_ORD_API;
+import templates.TemplateAPI;
+import templates.TemplateAPI_Impl;
 
 /**
  *
@@ -30,6 +32,7 @@ public class Sales extends javax.swing.JPanel {
     private String cardExpiryForBackend = "";
     private final SA_Merchant_API merchantAPI = new SA_Merchant_API_Impl(DBConnection.getConnection());
     private final SA_ORD_API saOrdApi = new SA_ORD_API(DBConnection.getConnection());
+    private final TemplateAPI templateAPI = new TemplateAPI_Impl();
 
     /**
      * Creates new form Sales
@@ -543,6 +546,9 @@ public class Sales extends javax.swing.JPanel {
         jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] {
             "Occasional Customer", "Account Holder"
         }));
+        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] {
+            "Cash", "Card"
+        }));
 
         jTextField2.setText("");
         cardDetailsCaptured = false;
@@ -550,7 +556,6 @@ public class Sales extends javax.swing.JPanel {
         jTable1.setRowHeight(24);
         jTable1.getTableHeader().setReorderingAllowed(false);
         updateAccountIdVisibility();
-        updatePaymentMethodOptions();
         updateSummary();
     }
 
@@ -654,24 +659,6 @@ public class Sales extends javax.swing.JPanel {
             return;
         }
 
-        if ("Credit".equals(String.valueOf(jComboBox5.getSelectedItem()))
-                && !"Account Holder".equals(String.valueOf(jComboBox2.getSelectedItem()))) {
-            javax.swing.JOptionPane.showMessageDialog(
-                this,
-                "Credit payment is only available for account holder sales."
-            );
-            return;
-        }
-
-        if ("Credit".equals(String.valueOf(jComboBox5.getSelectedItem()))
-                && jTextField2.getText().trim().isEmpty()) {
-            javax.swing.JOptionPane.showMessageDialog(
-                this,
-                "Enter an account ID before using Credit payment."
-            );
-            return;
-        }
-
         if ("Card".equals(String.valueOf(jComboBox5.getSelectedItem())) && !cardDetailsCaptured) {
             if (!captureCardDetails()) {
                 return;
@@ -687,21 +674,21 @@ public class Sales extends javax.swing.JPanel {
         }
 
         // Temporary hook to pass sale item payload to backend until final DB write design is confirmed.
-        int saleId = merchantAPI.recordCustomerPurchase(
+        boolean recorded = merchantAPI.recordCustomerPurchase(
             getSelectedCustomerId(),
             buildSaleItemsForBackend(model),
             totalAmount,
             String.valueOf(jComboBox5.getSelectedItem())
         );
 
-        if (saleId <= 0) {
+        if (!recorded) {
             javax.swing.JOptionPane.showMessageDialog(this, "Sale could not be recorded.");
             return;
         }
 
         mirrorSaleInOrdersTable(model);
 
-        showRetailInvoice(saleId);
+        showRetailInvoice();
 
         model.setRowCount(0);
         jTextField1.setText("1");
@@ -790,7 +777,7 @@ public class Sales extends javax.swing.JPanel {
         return Integer.parseInt(digitsOnly);
     }
 
-    private void showRetailInvoice(int saleId) {
+    private void showRetailInvoice() {
         javax.swing.table.DefaultTableModel sourceModel =
             (javax.swing.table.DefaultTableModel) jTable1.getModel();
         javax.swing.table.DefaultTableModel invoiceModel = new javax.swing.table.DefaultTableModel(
@@ -825,21 +812,15 @@ public class Sales extends javax.swing.JPanel {
         tableScrollPane.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.DARK_GRAY));
         tableScrollPane.setPreferredSize(new java.awt.Dimension(460, 165));
 
-        javax.swing.JLabel titleLabel = new javax.swing.JLabel("Retail Invoice");
+        javax.swing.JLabel titleLabel = new javax.swing.JLabel("9.7 Appendix 7: Retail Invoice");
         titleLabel.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 18));
 
-        javax.swing.JLabel briefLabel = new javax.swing.JLabel("");
+        javax.swing.JLabel briefLabel = new javax.swing.JLabel("InfoPharma ORDERING SYSTEM: STUDENT'S BRIEF");
         briefLabel.setFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 11));
 
         javax.swing.JTextArea leftAddress = createInvoiceTextArea(buildCustomerAddressBlock());
-        javax.swing.JTextArea rightAddress = createInvoiceTextArea(
-            "Cosymed Ltd.,\n"
-            + "3, High Level Drive,\n"
-            + "Sydenham,\n"
-            + "SE26 3ET\n"
-            + "Phone: 0208 778 0124\n"
-            + "Fax: 0208 778 0125"
-        );
+        javax.swing.JTextArea rightAddress = createInvoiceTextArea(buildPharmacyBlock());
+        
         javax.swing.JPanel headerPanel = new javax.swing.JPanel(new java.awt.BorderLayout());
         headerPanel.setOpaque(false);
         headerPanel.add(titleLabel, java.awt.BorderLayout.WEST);
@@ -860,7 +841,7 @@ public class Sales extends javax.swing.JPanel {
         javax.swing.JPanel metaPanel = new javax.swing.JPanel(new java.awt.GridLayout(2, 1, 0, 8));
         metaPanel.setOpaque(false);
 
-        javax.swing.JLabel invoiceLabel = new javax.swing.JLabel("INVOICE NO.: " + saleId, javax.swing.SwingConstants.CENTER);
+        javax.swing.JLabel invoiceLabel = new javax.swing.JLabel("INVOICE NO.: 197362", javax.swing.SwingConstants.CENTER);
         invoiceLabel.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 16));
 
         javax.swing.JLabel accountLabel = new javax.swing.JLabel(buildInvoiceAccountLine());
@@ -947,15 +928,27 @@ public class Sales extends javax.swing.JPanel {
         String accountId = jTextField2.getText().trim().isEmpty() ? "CSM000123" : jTextField2.getText().trim();
         return "Account No: " + accountId;
     }
-
+    
     private String buildInvoiceFooterBlock() {
-        String paymentMethod = String.valueOf(jComboBox5.getSelectedItem());
-        String paymentDetails = cardSummary.isEmpty() ? paymentMethod : paymentMethod + " (" + cardSummary + ")";
+    String paymentMethod = String.valueOf(jComboBox5.getSelectedItem());
+    String paymentDetails = cardSummary.isEmpty() ? paymentMethod : paymentMethod + " (" + cardSummary + ")";
 
+    try {
+        String footerTemplate = templateAPI.getTemplate("invoice_footer");
+        String pharmacyName = templateAPI.getTemplate("pharmacy_name");
+
+        return footerTemplate
+            .replace("{pharmacy_name}", pharmacyName)
+            .replace("{payment_method}", paymentDetails);
+
+    } catch (Exception e) {
         return "Payment Method: " + paymentDetails
             + "\n\nThank you for your valued custom. We look forward to receiving your payment in due course."
-            + "\n\nYours sincerely,\n\nPharmaTech";
+            + "\n\nYours sincerely,\n\nCosymed Ltd.";
     }
+}
+
+
 
     private javax.swing.JPanel buildTotalsPanel() {
         javax.swing.JPanel totalsPanel = new javax.swing.JPanel(new java.awt.GridLayout(4, 2, 0, 0));
@@ -1007,35 +1000,8 @@ public class Sales extends javax.swing.JPanel {
         if (!isAccountHolder) {
             jTextField2.setText("");
         }
-        updatePaymentMethodOptions();
         revalidate();
         repaint();
-    }
-
-    private void updatePaymentMethodOptions() {
-        boolean isAccountHolder = "Account Holder".equals(String.valueOf(jComboBox2.getSelectedItem()));
-        String previousSelection = String.valueOf(jComboBox5.getSelectedItem());
-
-        if (isAccountHolder) {
-            jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] {
-                "Cash", "Card", "Credit"
-            }));
-        } else {
-            jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] {
-                "Cash", "Card"
-            }));
-        }
-
-        if (previousSelection != null) {
-            for (int i = 0; i < jComboBox5.getItemCount(); i++) {
-                if (previousSelection.equals(jComboBox5.getItemAt(i))) {
-                    jComboBox5.setSelectedItem(previousSelection);
-                    return;
-                }
-            }
-        }
-
-        jComboBox5.setSelectedIndex(0);
     }
 
     private void handlePaymentMethodSelection() {
@@ -1101,6 +1067,23 @@ public class Sales extends javax.swing.JPanel {
     private double parseCurrency(String value) {
         return Double.parseDouble(value.replace("£", "").trim());
     }
+    
+    private String buildPharmacyBlock() {
+    try {
+        String name = templateAPI.getTemplate("pharmacy_name");
+        String address = templateAPI.getTemplate("pharmacy_address");
+        String email = templateAPI.getTemplate("pharmacy_email");
+        String phone = templateAPI.getTemplate("pharmacy_phone");
+
+        return name + "\n"
+            + address + "\n"
+            + "Email: " + email + "\n"
+            + "Phone: " + phone;
+
+    } catch (Exception e) {
+        return "Cosymed Ltd.\n3, High Level Drive, Sydenham, SE26 3ET\nEmail: info@cosymed.local\nPhone: 0208 778 0124";
+    }
+}
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
