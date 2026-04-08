@@ -43,14 +43,13 @@ public class Orders extends javax.swing.JPanel {
         );
         */
         
-        loadLoggedInBalance();
         
         saOrdApi = new SA_ORD_API(database.DBConnection.getConnection());
         loginApi = new SA_LOGIN_API();
         customerApi = new CustomerAPI_Impl();
         loadOrders();
         loadCatalogue();
-        //loadLoggedInBalance();
+        loadLoggedInBalance();
         
         
         

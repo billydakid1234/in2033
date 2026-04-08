@@ -8,15 +8,29 @@ package GUI;
  *
  * @author mehzanazkhan
  */
+
+import login.SA_LOGIN_API;
+
 public class LoginScreen extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(LoginScreen.class.getName());
-
+    private SA_LOGIN_API loginApi;
+    
     /**
      * Creates new form LoginScreen
      */
     public LoginScreen() {
         initComponents();
+        
+        loginApi = new SA_LOGIN_API();
+        
+        jShowPassword.addActionListener(e -> {
+        if (jShowPassword.isSelected()) {
+            jPasswordField.setEchoChar((char) 0);
+        } else {
+            jPasswordField.setEchoChar('•');
+        }
+        });
         
         
     }
@@ -38,7 +52,7 @@ public class LoginScreen extends javax.swing.JFrame {
         jUsernameField = new javax.swing.JTextField();
         signIn = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
-        jRadioButton1 = new javax.swing.JRadioButton();
+        jShowPassword = new javax.swing.JRadioButton();
         cmbRole = new javax.swing.JComboBox<>();
         jLabel1 = new javax.swing.JLabel();
 
@@ -80,10 +94,10 @@ public class LoginScreen extends javax.swing.JFrame {
         jPanel2.setBackground(new java.awt.Color(153, 204, 255));
 
         jPasswordField.setFont(new java.awt.Font("Menlo", 0, 18)); // NOI18N
-        jPasswordField.setText("Password");
+        jPasswordField.setText("Test123");
 
         jUsernameField.setFont(new java.awt.Font("Menlo", 0, 18)); // NOI18N
-        jUsernameField.setText("Username");
+        jUsernameField.setText("TestUser");
         jUsernameField.addActionListener(this::jUsernameFieldActionPerformed);
 
         signIn.setBackground(new java.awt.Color(153, 204, 255));
@@ -94,8 +108,8 @@ public class LoginScreen extends javax.swing.JFrame {
         jLabel3.setFont(new java.awt.Font("Kailasa", 1, 60)); // NOI18N
         jLabel3.setText("Sign in");
 
-        jRadioButton1.setText("Show password");
-        jRadioButton1.addActionListener(this::jRadioButton1ActionPerformed);
+        jShowPassword.setText("Show password");
+        jShowPassword.addActionListener(this::jShowPasswordActionPerformed);
 
         cmbRole.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Manager", "Pharmacist", " " }));
 
@@ -122,7 +136,7 @@ public class LoginScreen extends javax.swing.JFrame {
                             .addComponent(jUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addGap(6, 6, 6)
-                                .addComponent(jRadioButton1)
+                                .addComponent(jShowPassword)
                                 .addGap(32, 32, 32)
                                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -140,7 +154,7 @@ public class LoginScreen extends javax.swing.JFrame {
                 .addComponent(jPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jRadioButton1)
+                    .addComponent(jShowPassword)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cmbRole, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(57, 57, 57)
@@ -168,11 +182,19 @@ public class LoginScreen extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void signInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_signInActionPerformed
-        // TODO add your handling code here:
-        boolean userLoginAuthenticated = true;//TEMPORARY
-        //perform the authentication of the user's login details 
-        //(retrieve details from database)
-        if (userLoginAuthenticated){
+       
+        
+        String username = jUsernameField.getText();
+        char[] passwordChars = jPasswordField.getPassword();        
+        String password = new String(passwordChars); 
+        
+       
+        //uncomment line below for proper authentication
+        Boolean authenticated = loginApi.login(username, password);
+        
+               
+        if (authenticated){
+        //if (username.equals("Username") && password.equals("Password")){//temporary
             String role = cmbRole.getSelectedItem().toString();
             new MainWindow(role).setVisible(true);
             this.dispose();
@@ -185,9 +207,9 @@ public class LoginScreen extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jUsernameFieldActionPerformed
 
-    private void jRadioButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton1ActionPerformed
+    private void jShowPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jShowPasswordActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jRadioButton1ActionPerformed
+    }//GEN-LAST:event_jShowPasswordActionPerformed
 
     /**
      * @param args the command line arguments
@@ -223,7 +245,7 @@ public class LoginScreen extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPasswordField jPasswordField;
-    private javax.swing.JRadioButton jRadioButton1;
+    private javax.swing.JRadioButton jShowPassword;
     private javax.swing.JTextField jUsernameField;
     private javax.swing.JButton signIn;
     // End of variables declaration//GEN-END:variables
