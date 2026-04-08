@@ -11,7 +11,10 @@ package GUI;
  */
 
 import sa_orders.SA_ORD_API;
+import customer.CustomerAPI_Impl;
 import database.DBConnection;
+import java.util.Map;
+import login.SA_LOGIN_API;
 //import ca_online_orders.CA_OnlineOrderAPI_Impl;
 
 
@@ -19,6 +22,8 @@ public class Orders extends javax.swing.JPanel {
 
     private static int orderCounter = 1;
     private SA_ORD_API saOrdApi;
+    private SA_LOGIN_API loginApi;
+    private CustomerAPI_Impl customerApi;
     //private CA_OnlineOrderAPI_Impl orderApi;
     
     
@@ -39,8 +44,11 @@ public class Orders extends javax.swing.JPanel {
         */
         
         saOrdApi = new SA_ORD_API(database.DBConnection.getConnection());
+        loginApi = new SA_LOGIN_API();
+        customerApi = new CustomerAPI_Impl();
         loadOrders();
         loadCatalogue();
+        //loadLoggedInBalance();
         
         
         
@@ -84,7 +92,7 @@ public class Orders extends javax.swing.JPanel {
         jLabel3 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jPanel6 = new javax.swing.JPanel();
-        jLabel6 = new javax.swing.JLabel();
+        AccStatus = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jButton2 = new javax.swing.JButton();
         btnPlaceOrder = new javax.swing.JButton();
@@ -272,8 +280,8 @@ public class Orders extends javax.swing.JPanel {
         jLabel1.setFont(new java.awt.Font("Helvetica Neue", 1, 36)); // NOI18N
         jLabel1.setText("Orders to InfoPharma");
 
-        jLabel6.setFont(new java.awt.Font("Helvetica Neue", 1, 15)); // NOI18N
-        jLabel6.setText("Normal");
+        AccStatus.setFont(new java.awt.Font("Helvetica Neue", 1, 15)); // NOI18N
+        AccStatus.setText("Normal");
 
         jLabel5.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
         jLabel5.setText("Account Status:");
@@ -286,7 +294,7 @@ public class Orders extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(78, 78, 78)
-                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(AccStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(111, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
@@ -295,7 +303,7 @@ public class Orders extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(AccStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -399,50 +407,53 @@ public class Orders extends javax.swing.JPanel {
     
     
     private void loadCatalogue() {
-        //THIS USES THE WRONG PRODUCT CATALOGUE, CALATOGUE NEEDS TO BE RETRIEVED FROM SA
-        /*
         try {
             javax.swing.table.DefaultTableModel model =
                 (javax.swing.table.DefaultTableModel) jCatalogueTable.getModel();
             model.setRowCount(0);
 
-            
-            String[] catalogueItems = orderApi.getMerchantCatalogue(""); 
+            Map<Integer, String> catalogueItems = saOrdApi.getCatalogue();
 
-            for (String item : catalogueItems) {
-                String[] parts = item.split(" - ", 2); 
-                model.addRow(new Object[]{parts[0], parts[1]});
+            for (Map.Entry<Integer, String> item : catalogueItems.entrySet()) {
+                model.addRow(new Object[]{item.getKey(), item.getValue()});
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        */
     }
     
     
     private void searchCatalogue(String searchText) {
-        //THIS USES THE WRONG PRODUCT CATALOGUE, CALATOGUE NEEDS TO BE RETRIEVED FROM SA
-        /*
         try {
             javax.swing.table.DefaultTableModel model
                     = (javax.swing.table.DefaultTableModel) jCatalogueTable.getModel();
             model.setRowCount(0);
 
-            String[] catalogueItems = orderApi.getMerchantCatalogue(searchText);
+            Map<Integer, String> catalogueItems = saOrdApi.searchCatalogue(searchText);
 
-            for (String item : catalogueItems) {
-                String[] parts = item.split(" - ", 2);
-                model.addRow(new Object[]{parts[0], parts[1]});
+            for (Map.Entry<Integer, String> item : catalogueItems.entrySet()) {
+                model.addRow(new Object[]{item.getKey(), item.getValue()});
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        */
-        
 }
+
+    /* code for balance
+    private void loadLoggedInBalance() {
+        try {
+            String username = loginApi.getCurrentLoggedInUsername();
+            double balance = customerApi.getOutstandingBalanceByUsername(username);
+            jLabel3.setText(String.format("£%.2f", balance));
+        } catch (Exception e) {
+            jLabel3.setText("£0.00");
+            e.printStackTrace();
+        }
+    }
+    */
     
     
     public static String generateOrderID(){
@@ -510,10 +521,10 @@ public class Orders extends javax.swing.JPanel {
         tableScrollPane.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.DARK_GRAY));
         tableScrollPane.setPreferredSize(new java.awt.Dimension(400, 130));
 
-        javax.swing.JLabel titleLabel = new javax.swing.JLabel("9.7 Appendix 7: Order Invoice");
+        javax.swing.JLabel titleLabel = new javax.swing.JLabel("Order Invoice");
         titleLabel.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 18));
 
-        javax.swing.JLabel briefLabel = new javax.swing.JLabel("InfoPharma ORDERING SYSTEM: STUDENT'S BRIEF");
+        javax.swing.JLabel briefLabel = new javax.swing.JLabel("InfoPharma ORDERING SYSTEM:");
         briefLabel.setFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 11));
 
         javax.swing.JPanel headerPanel = new javax.swing.JPanel(new java.awt.BorderLayout());
@@ -578,20 +589,28 @@ public class Orders extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void btnPlaceOrderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlaceOrderActionPerformed
-           java.awt.Window parentWindow = javax.swing.SwingUtilities.getWindowAncestor(this);
+    if (AccStatus.getText() == "Normal"){
+        java.awt.Window parentWindow = javax.swing.SwingUtilities.getWindowAncestor(this);
 
-    NewOrder dialog;
-    if (parentWindow instanceof java.awt.Frame) {
-        dialog = new NewOrder((java.awt.Frame) parentWindow, true, this);
+        NewOrder dialog;
+        if (parentWindow instanceof java.awt.Frame) {
+            dialog = new NewOrder((java.awt.Frame) parentWindow, true, this);
+        } else {
+            dialog = new NewOrder(null, true, this);
+        }
+
+        dialog.setLocationRelativeTo(parentWindow);
+        dialog.setVisible(true);
+
+        // Reload from DB after modal closes so newly submitted orders are shown.
+        refreshOrders();
     } else {
-        dialog = new NewOrder(null, true, this);
+        javax.swing.JOptionPane.showMessageDialog(this,
+                "Account status must be normal to place an order.");
+    
     }
-
-    dialog.setLocationRelativeTo(parentWindow);
-    dialog.setVisible(true);
-
-    // Reload from DB after modal closes so newly submitted orders are shown.
-    refreshOrders();
+        
+    
 
     }//GEN-LAST:event_btnPlaceOrderActionPerformed
 
@@ -599,6 +618,7 @@ public class Orders extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel AccStatus;
     private javax.swing.JButton btnPlaceOrder;
     private javax.swing.JButton jButton2;
     private javax.swing.JTextField jCatalogueSearchBar;
@@ -608,7 +628,6 @@ public class Orders extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JTable jOrdersTable;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;

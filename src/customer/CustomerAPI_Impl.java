@@ -447,5 +447,32 @@ public void clearReminderStatusesIfPaid(String accountId) throws Exception {
     }
 }
 
+@Override
+public double getOutstandingBalanceByUsername(String username) throws Exception {
+    if (username == null || username.isBlank()) {
+        return 0;
+    }
+
+    String sql = "SELECT outstanding_balance FROM ca_customers WHERE lower(email) = lower(?) LIMIT 1";
+
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        if (conn == null) {
+            throw new Exception("Database connection failed.");
+        }
+
+        ps.setString(1, username.trim());
+
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getDouble("outstanding_balance");
+            }
+        }
+    }
+
+    return 0;
+}
+
 }
 

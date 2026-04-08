@@ -44,6 +44,8 @@ public interface CustomerAPI {
     int generateReminders() throws Exception;
     
     void clearReminderStatusesIfPaid(String accountId) throws Exception;
+
+    double getOutstandingBalanceByUsername(String username) throws Exception;
     
 
 

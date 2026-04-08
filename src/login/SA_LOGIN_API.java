@@ -12,6 +12,8 @@ import java.util.List;
 
 public class SA_LOGIN_API {
 
+    private static String currentLoggedInUsername;
+
 
 
     /**
@@ -49,7 +51,11 @@ public boolean login(String username, String password) {
         try (ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 String storedHash = rs.getString("password_hash");
-                return storedHash.equals(hashPassword(password));
+                boolean authenticated = storedHash.equals(hashPassword(password));
+                if (authenticated) {
+                    currentLoggedInUsername = username;
+                }
+                return authenticated;
             }
         }
 
@@ -59,6 +65,20 @@ public boolean login(String username, String password) {
 
     return false;
 }
+
+    /**
+     * Logout current user tracked by this API.
+     */
+    public void logout() {
+        currentLoggedInUsername = null;
+    }
+
+    /**
+     * Returns username of current logged-in user, or null if no active login.
+     */
+    public String getCurrentLoggedInUsername() {
+        return currentLoggedInUsername;
+    }
 
     /**
      * CREATE STAFF USER
