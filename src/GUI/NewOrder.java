@@ -16,6 +16,7 @@ package GUI;
 
 import sa_orders.SA_ORD_API;
 import database.DBConnection;
+import main.java.PU_COMMS_API_Impl;
 
 
 public class NewOrder extends javax.swing.JDialog {
@@ -23,6 +24,7 @@ public class NewOrder extends javax.swing.JDialog {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(NewOrder.class.getName());
     private Orders ordersPanel;
     private final SA_ORD_API saOrdApi;
+    private final PU_COMMS_API_Impl puCommsApi;
 
 
     
@@ -37,6 +39,8 @@ public class NewOrder extends javax.swing.JDialog {
         
         
         saOrdApi = new SA_ORD_API(DBConnection.getConnection());
+        puCommsApi = new PU_COMMS_API_Impl();
+        System.out.println("NewOrder dialog initialized.");
 
         
         
@@ -285,6 +289,15 @@ public class NewOrder extends javax.swing.JDialog {
 
         saOrdApi.submitOrder(orderId);
 
+        String customerEmail = javax.swing.JOptionPane.showInputDialog(this, "Enter customer email for order confirmation:");
+        System.out.println("Customer email entered: " + customerEmail);
+        if (customerEmail != null && !customerEmail.isBlank()) {
+            puCommsApi.sendEmail(
+                customerEmail,
+                "Order Confirmation - " + orderId,
+                "Your order " + orderId + " has been submitted successfully."
+            );
+        }
 
         if (ordersPanel != null) {
             ordersPanel.refreshOrders();

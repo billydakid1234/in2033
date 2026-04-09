@@ -26,67 +26,60 @@ public class PU_COMMS_API_Impl implements PU_COMMS_API {
      * Instead of sending email directly, this method passes the
      * email data to the PU subsystem for actual sending.
      */
-    @Override
-    public boolean sendEmail(String recipient, String subject, String content) {
-        try {
-            // Package the email data
-            Map<String, String> emailData = Map.of(
-                    "recipient", recipient,
-                    "subject", subject,
-                    "content", content
-            );
-
-            System.out.println("Email data handed off to PU subsystem: " + emailData);
-            return true;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     /*
-     * REST API replacement version for sendEmail().
-     *
-     * Incase we need to switch it out and Dylan isnt there use the commented code below and switch it out
-     * 1) comment out the current live sendEmail() method above
-     * 2) uncomment this whole method
-     * 3) make sure the PU service has POST /sendEmail running on localhost:8084 or alter it to whatever the correct endpoint is
+     * Stub version - not in use. Kept for reference.
      *
      * @Override
      * public boolean sendEmail(String recipient, String subject, String content) {
      *     try {
-     *         String payload = String.format(
-     *                 "{\"recipient\":\"%s\",\"subject\":\"%s\",\"content\":\"%s\"}",
-     *                 recipient.replace("\"", "\\\""),
-     *                 subject.replace("\"", "\\\""),
-     *                 content.replace("\"", "\\\"").replace("\n", "\\n")
+     *         Map<String, String> emailData = Map.of(
+     *                 "recipient", recipient,
+     *                 "subject", subject,
+     *                 "content", content
      *         );
-     *
-     *         URL url = new URL(puApiEndpoint + "/sendEmail");
-     *         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-     *         conn.setRequestMethod("POST");
-     *         conn.setRequestProperty("Content-Type", "application/json");
-     *         conn.setDoOutput(true);
-     *
-     *         try (OutputStream os = conn.getOutputStream()) {
-     *             os.write(payload.getBytes(StandardCharsets.UTF_8));
-     *         }
-     *
-     *         int responseCode = conn.getResponseCode();
-     *         if (responseCode == 200) {
-     *             return true;
-     *         } else {
-     *             System.out.println("PU email API returned error code: " + responseCode);
-     *             return false;
-     *         }
-     *
+     *         System.out.println("Email data handed off to PU subsystem: " + emailData);
+     *         return true;
      *     } catch (Exception e) {
      *         e.printStackTrace();
      *         return false;
      *     }
      * }
      */
+
+    @Override
+    public boolean sendEmail(String recipient, String subject, String content) {
+        System.out.println("sendEmail called - recipient: " + recipient + ", subject: " + subject);
+        try {
+            String payload = String.format(
+                    "{\"recipient\":\"%s\",\"subject\":\"%s\",\"content\":\"%s\"}",
+                    recipient.replace("\"", "\\\""),
+                    subject.replace("\"", "\\\""),
+                    content.replace("\"", "\\\"").replace("\n", "\\n")
+            );
+
+            URL url = new URL(puApiEndpoint + "/sendEmail");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setDoOutput(true);
+
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(payload.getBytes(StandardCharsets.UTF_8));
+            }
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode == 200) {
+                return true;
+            } else {
+                System.out.println("PU email API returned error code: " + responseCode);
+                return false;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     public boolean processCardPayment(String cardNumber, String expiry, double amount, String orderID) {
         try {

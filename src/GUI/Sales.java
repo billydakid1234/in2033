@@ -7,6 +7,7 @@ package GUI;
 import database.DBConnection;
 import java.util.ArrayList;
 import java.util.List;
+import main.java.PU_COMMS_API_Impl;
 import merchant.SA_Merchant_API;
 import merchant.SA_Merchant_API_Impl;
 import sa_orders.SA_ORD_API;
@@ -33,6 +34,7 @@ public class Sales extends javax.swing.JPanel {
     private final SA_Merchant_API merchantAPI = new SA_Merchant_API_Impl(DBConnection.getConnection());
     private final SA_ORD_API saOrdApi = new SA_ORD_API(DBConnection.getConnection());
     private final TemplateAPI templateAPI = new TemplateAPI_Impl();
+    private final PU_COMMS_API_Impl puCommsApi = new PU_COMMS_API_Impl();
 
     /**
      * Creates new form Sales
@@ -687,6 +689,17 @@ public class Sales extends javax.swing.JPanel {
         }
 
         mirrorSaleInOrdersTable(model);
+
+        String customerEmail = javax.swing.JOptionPane.showInputDialog(this, "Enter customer email for order confirmation:");
+        System.out.println("Customer email entered: " + customerEmail);
+        if (customerEmail != null && !customerEmail.isBlank()) {
+            boolean sent = puCommsApi.sendEmail(
+                customerEmail,
+                "Order Confirmation",
+                "Your order has been submitted successfully. Thank you for shopping with InfoPharma."
+            );
+            System.out.println("sendEmail result: " + sent);
+        }
 
         showRetailInvoice();
 

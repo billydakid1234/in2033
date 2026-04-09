@@ -589,7 +589,8 @@ public class Orders extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void btnPlaceOrderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlaceOrderActionPerformed
-    if (AccStatus.getText() == "Normal"){
+    System.out.println("btnPlaceOrder clicked, AccStatus = '" + AccStatus.getText() + "'");
+    if (AccStatus.getText().equals("Normal")){
         java.awt.Window parentWindow = javax.swing.SwingUtilities.getWindowAncestor(this);
 
         NewOrder dialog;
