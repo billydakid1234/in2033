@@ -284,7 +284,7 @@ public MainWindow() {
     }//GEN-LAST:event_btnReportsActionPerformed
 
     private void btnCustomersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCustomersActionPerformed
-        String userRole = loginApi.getUserRole(loginApi.getCurrentLoggedInUsername());                               
+        String userRole = loginApi.getUserRole(loginApi.getCurrentLoggedInUsername());
         contentPanel.removeAll();
         contentPanel.add(new Customers(userRole), java.awt.BorderLayout.CENTER);
         contentPanel.revalidate();
@@ -293,7 +293,8 @@ public MainWindow() {
 
     private void btnStaffActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStaffActionPerformed
         String userRole = loginApi.getUserRole(loginApi.getCurrentLoggedInUsername());
-        if (userRole == "Admin" || userRole == "Manager"){
+        System.out.println(userRole);
+        if (userRole.equalsIgnoreCase("Admin") || userRole.equalsIgnoreCase("Manager")){
             contentPanel.removeAll();
             contentPanel.add(new ManageStaff(), java.awt.BorderLayout.CENTER);
             contentPanel.revalidate();
