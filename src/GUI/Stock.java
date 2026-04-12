@@ -77,6 +77,8 @@ public class Stock extends javax.swing.JPanel {
     updateLowStockAlertFromBackend();
 
 }
+    
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -524,7 +526,7 @@ private void loadStockTable() {
         model.addRow(row);
     }
 }
-    
+   
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel alertPanel1;
     private javax.swing.JButton jButton1;

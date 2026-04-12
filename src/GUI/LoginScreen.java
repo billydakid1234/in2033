@@ -53,8 +53,6 @@ public class LoginScreen extends javax.swing.JFrame {
         signIn = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
         jShowPassword = new javax.swing.JRadioButton();
-        cmbRole = new javax.swing.JComboBox<>();
-        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(153, 204, 255));
@@ -66,6 +64,7 @@ public class LoginScreen extends javax.swing.JFrame {
         jLabel2.setForeground(new java.awt.Color(153, 204, 255));
         jLabel2.setText("Welcome Back!");
 
+        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/logo.png"))); // NOI18N
         jLabel4.setText("jLabel4");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -73,13 +72,14 @@ public class LoginScreen extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(93, 93, 93)
-                .addComponent(jLabel2)
-                .addContainerGap(100, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 384, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(17, 17, 17))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(93, 93, 93)
+                        .addComponent(jLabel2))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 384, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(30, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -111,11 +111,6 @@ public class LoginScreen extends javax.swing.JFrame {
         jShowPassword.setText("Show password");
         jShowPassword.addActionListener(this::jShowPasswordActionPerformed);
 
-        cmbRole.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Manager", "Pharmacist", " " }));
-
-        jLabel1.setFont(new java.awt.Font("Helvetica Neue", 1, 14)); // NOI18N
-        jLabel1.setText("Role:");
-
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -136,11 +131,7 @@ public class LoginScreen extends javax.swing.JFrame {
                             .addComponent(jUsernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addGap(6, 6, 6)
-                                .addComponent(jShowPassword)
-                                .addGap(32, 32, 32)
-                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cmbRole, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                .addComponent(jShowPassword)))))
                 .addContainerGap(52, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
@@ -153,13 +144,10 @@ public class LoginScreen extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(jPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jShowPassword)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cmbRole, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(57, 57, 57)
+                .addComponent(jShowPassword)
+                .addGap(58, 58, 58)
                 .addComponent(signIn)
-                .addContainerGap(110, Short.MAX_VALUE))
+                .addContainerGap(111, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -181,22 +169,21 @@ public class LoginScreen extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jShowPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jShowPasswordActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jShowPasswordActionPerformed
+
     private void signInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_signInActionPerformed
-       
-        
+
         String username = jUsernameField.getText();
-        char[] passwordChars = jPasswordField.getPassword();        
-        String password = new String(passwordChars); 
-        
-       
-        //uncomment line below for proper authentication
+        char[] passwordChars = jPasswordField.getPassword();
+        String password = new String(passwordChars);
+
         Boolean authenticated = loginApi.login(username, password);
-        
-        
+
         if (authenticated){
-        //if (username.equals("Username") && password.equals("Password")){//temporary
-            String role = cmbRole.getSelectedItem().toString();
-            new MainWindow(role).setVisible(true);
+
+            new MainWindow().setVisible(true);
             this.dispose();
         } else {
             javax.swing.JOptionPane.showMessageDialog(this, "Invalid Login");
@@ -206,10 +193,6 @@ public class LoginScreen extends javax.swing.JFrame {
     private void jUsernameFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jUsernameFieldActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jUsernameFieldActionPerformed
-
-    private void jShowPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jShowPasswordActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jShowPasswordActionPerformed
 
     /**
      * @param args the command line arguments
@@ -237,8 +220,6 @@ public class LoginScreen extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox<String> cmbRole;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;

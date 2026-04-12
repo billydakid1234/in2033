@@ -26,7 +26,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <Component id="lbTitle" min="-2" pref="200" max="-2" attributes="0"/>
-                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="972" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
                       <Component id="lbInfo1" min="-2" max="-2" attributes="0"/>
@@ -37,7 +37,7 @@
                           <Component id="stockPanel1" max="32767" attributes="0"/>
                           <Component id="salesPanel2" max="32767" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="108" max="32767" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="accountPanel3" alignment="1" min="-2" max="-2" attributes="0"/>
                           <Component id="pendingPanel4" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -55,7 +55,7 @@
               <Component id="lbTitle" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="lbInfo1" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="95" max="32767" attributes="0"/>
+              <EmptySpace pref="98" max="32767" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="stockPanel1" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="pendingPanel4" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -86,7 +86,7 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="0" attributes="0">
+              <Group type="102" attributes="0">
                   <EmptySpace min="-2" pref="121" max="-2" attributes="0"/>
                   <Component id="lbStock1" min="-2" max="-2" attributes="0"/>
                   <EmptySpace pref="158" max="32767" attributes="0"/>
