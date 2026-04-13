@@ -34,7 +34,7 @@ public class SA_Catalogue_API {
     public SA_Catalogue_API(Connection conn) {
         this.conn = conn;
         this.httpClient = HttpClient.newHttpClient();
-        this.saBaseUrl = System.getenv().getOrDefault("SA_API_BASE_URL", "http://localhost:8083");
+        this.saBaseUrl = System.getenv().getOrDefault("SA_API_BASE_URL", "http://localhost:8081");
     }
 
     public Map<Integer, String> getCatalogue(String searchTerm) {
@@ -57,7 +57,7 @@ public class SA_Catalogue_API {
 
     private void readViaRest(Map<Integer, String> catalogue, String searchTerm) throws IOException, InterruptedException {
         String encoded = URLEncoder.encode(searchTerm, StandardCharsets.UTF_8);
-        String url = saBaseUrl + "/api/ipos_sa/catalogue?search=" + encoded;
+        String url = saBaseUrl + "/api/ipos_sa/sa_ord_api/getActiveCatalogue?search=" + encoded;
 
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(url))

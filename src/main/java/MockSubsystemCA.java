@@ -161,6 +161,7 @@ curl -i "http://localhost:8082/api/ipos_ca/catalogue?search=cardiovascular"
 
 # Search: no results expected
 curl -i "http://localhost:8082/api/ipos_ca/catalogue?search=zzzz"
+
  */
 
 /*
