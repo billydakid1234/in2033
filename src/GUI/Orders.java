@@ -28,8 +28,8 @@ public class Orders extends javax.swing.JPanel {
     private SA_LOGIN_API loginApi;
     private CustomerAPI_Impl customerApi;
 
-    public Orders() {
-       initComponents();
+public Orders() {
+    initComponents();
 
     saOrdApi = new SA_ORD_API(database.DBConnection.getConnection());
     saCommsApi = new SA_COMMS_API_Impl();
@@ -37,6 +37,7 @@ public class Orders extends javax.swing.JPanel {
     customerApi = new CustomerAPI_Impl();
 
     loadOrders();
+    refreshStatusesFromSA();
     loadCatalogue();
     loadLoggedInBalance();
 
@@ -402,9 +403,10 @@ public class Orders extends javax.swing.JPanel {
         }
     }
 
-    public void refreshOrders() {
-        loadOrders();
-    }
+public void refreshOrders() {
+    loadOrders();
+    refreshStatusesFromSA();
+}
 
     public void refreshBalance() {
         loadLoggedInBalance();
@@ -476,7 +478,15 @@ private void loadLoggedInBalance() {
     try {
         String response = saCommsApi.getBalance("username=cosymed");
         System.out.println("SA balance response: " + response);
-        jLabel3.setText(response);
+
+        if (response == null || response.isBlank()) {
+            jLabel3.setText("£0.00");
+            return;
+        }
+
+        double balance = Double.parseDouble(response.trim());
+        jLabel3.setText(String.format("£%.2f", balance));
+
     } catch (Exception e) {
         jLabel3.setText("£0.00");
         e.printStackTrace();
@@ -507,113 +517,48 @@ private void loadLoggedInBalance() {
     }//GEN-LAST:event_jCatalogueSearchBarActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        int selectedRow = jOrdersTable.getSelectedRow();
 
-        if (selectedRow == -1) {
+    int selectedRow = jOrdersTable.getSelectedRow();
+
+    if (selectedRow == -1) {
+        javax.swing.JOptionPane.showMessageDialog(this,
+            "Please select an order to view the invoice of.");
+        return;
+    }
+
+    String orderId = jOrdersTable.getValueAt(selectedRow, 0).toString();
+
+    try {
+        String response = saCommsApi.getInvoice("orderId=" + orderId);
+        System.out.println("SA invoice response for " + orderId + ": " + response);
+
+        if (response == null || response.isBlank()) {
             javax.swing.JOptionPane.showMessageDialog(this,
-                "Please select an order to view the invoice of.");
+                "No invoice data returned from SA.");
             return;
         }
 
-        String orderId = jOrdersTable.getValueAt(selectedRow, 0).toString();
-        String orderDate = jOrdersTable.getValueAt(selectedRow, 1).toString();
-        String status = jOrdersTable.getValueAt(selectedRow, 2).toString();
-        double totalCost = ((Number) jOrdersTable.getValueAt(selectedRow, 5)).doubleValue();
+        javax.swing.JTextArea area = new javax.swing.JTextArea(response);
+        area.setEditable(false);
+        area.setLineWrap(true);
+        area.setWrapStyleWord(true);
+        area.setFont(new java.awt.Font("Monospaced", java.awt.Font.PLAIN, 13));
 
-        java.util.Map<String, Integer> items = saOrdApi.viewOrder(orderId);
-
-        // Build items table model
-        javax.swing.table.DefaultTableModel invoiceModel = new javax.swing.table.DefaultTableModel(
-            new Object[][] {},
-            new String[] {"Product", "Quantity"}
-        ) {
-            @Override public boolean isCellEditable(int row, int col) { return false; }
-        };
-
-        if (items.isEmpty()) {
-            invoiceModel.addRow(new Object[]{"(no item details available)", "-"});
-        } else {
-            for (java.util.Map.Entry<String, Integer> entry : items.entrySet()) {
-                invoiceModel.addRow(new Object[]{entry.getKey(), entry.getValue()});
-            }
-        }
-
-        javax.swing.JTable invoiceTable = new javax.swing.JTable(invoiceModel);
-        invoiceTable.setRowHeight(22);
-        invoiceTable.setEnabled(false);
-        invoiceTable.setFont(new java.awt.Font("Serif", java.awt.Font.PLAIN, 13));
-        invoiceTable.getTableHeader().setFont(new java.awt.Font("Serif", java.awt.Font.BOLD, 13));
-        invoiceTable.setShowGrid(true);
-        invoiceTable.setGridColor(java.awt.Color.DARK_GRAY);
-
-        javax.swing.JScrollPane tableScrollPane = new javax.swing.JScrollPane(invoiceTable);
-        tableScrollPane.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.DARK_GRAY));
-        tableScrollPane.setPreferredSize(new java.awt.Dimension(400, 130));
-
-        javax.swing.JLabel titleLabel = new javax.swing.JLabel("Order Invoice");
-        titleLabel.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 18));
-
-        javax.swing.JLabel briefLabel = new javax.swing.JLabel("InfoPharma ORDERING SYSTEM:");
-        briefLabel.setFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 11));
-
-        javax.swing.JPanel headerPanel = new javax.swing.JPanel(new java.awt.BorderLayout());
-        headerPanel.setOpaque(false);
-        headerPanel.add(titleLabel, java.awt.BorderLayout.WEST);
-        headerPanel.add(briefLabel, java.awt.BorderLayout.EAST);
-
-        javax.swing.JTextArea detailsArea = new javax.swing.JTextArea(
-            "Order Reference: " + orderId + "\n" +
-            "Order Date:       " + orderDate + "\n" +
-            "Status:           " + status
-        );
-        detailsArea.setEditable(false);
-        detailsArea.setOpaque(false);
-        detailsArea.setFont(new java.awt.Font("Serif", java.awt.Font.PLAIN, 14));
-
-        javax.swing.JLabel totalLabel = new javax.swing.JLabel(
-            String.format("Total: £%.2f", totalCost), javax.swing.SwingConstants.RIGHT
-        );
-        totalLabel.setFont(new java.awt.Font("Serif", java.awt.Font.BOLD, 14));
-        totalLabel.setBorder(javax.swing.BorderFactory.createCompoundBorder(
-            javax.swing.BorderFactory.createLineBorder(java.awt.Color.DARK_GRAY),
-            javax.swing.BorderFactory.createEmptyBorder(4, 8, 4, 8)
-        ));
-
-        javax.swing.JPanel totalsRow = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 0, 0));
-        totalsRow.setOpaque(false);
-        totalsRow.add(totalLabel);
-
-        javax.swing.JPanel tablePanel = new javax.swing.JPanel(new java.awt.BorderLayout());
-        tablePanel.setOpaque(false);
-        tablePanel.add(tableScrollPane, java.awt.BorderLayout.CENTER);
-        tablePanel.add(totalsRow, java.awt.BorderLayout.SOUTH);
-
-        javax.swing.JTextArea closingArea = new javax.swing.JTextArea(
-            "\nThank you for your order. This confirms your purchase from InfoPharma.\n\nYours sincerely,\n\nPharmaTech"
-        );
-        closingArea.setEditable(false);
-        closingArea.setOpaque(false);
-        closingArea.setFont(new java.awt.Font("Serif", java.awt.Font.PLAIN, 13));
-        closingArea.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 0, 0, 0));
-
-        javax.swing.JPanel panel = new javax.swing.JPanel();
-        panel.setLayout(new javax.swing.BoxLayout(panel, javax.swing.BoxLayout.Y_AXIS));
-        panel.setBackground(java.awt.Color.WHITE);
-        panel.setBorder(javax.swing.BorderFactory.createEmptyBorder(16, 18, 16, 18));
-        panel.add(headerPanel);
-        panel.add(javax.swing.Box.createVerticalStrut(20));
-        panel.add(detailsArea);
-        panel.add(javax.swing.Box.createVerticalStrut(14));
-        panel.add(tablePanel);
-        panel.add(javax.swing.Box.createVerticalStrut(10));
-        panel.add(closingArea);
+        javax.swing.JScrollPane pane = new javax.swing.JScrollPane(area);
+        pane.setPreferredSize(new java.awt.Dimension(500, 300));
 
         javax.swing.JOptionPane.showMessageDialog(
             this,
-            panel,
+            pane,
             "Order Invoice",
             javax.swing.JOptionPane.INFORMATION_MESSAGE
         );
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        javax.swing.JOptionPane.showMessageDialog(this,
+            "Failed to load invoice from SA.");
+    }
 
     }//GEN-LAST:event_jButton2ActionPerformed
 
@@ -696,6 +641,64 @@ private String extractString(JsonNode node, String... keys) {
     return "";
 }
 
+private void refreshStatusesFromSA() {
+    try {
+        javax.swing.table.DefaultTableModel model =
+            (javax.swing.table.DefaultTableModel) jOrdersTable.getModel();
+
+        for (int i = 0; i < model.getRowCount(); i++) {
+            String orderId = String.valueOf(model.getValueAt(i, 0));
+
+            if (orderId == null || orderId.isBlank()) {
+                continue;
+            }
+
+            String response = saCommsApi.getOrderStatuses("orderId=" + orderId);
+            System.out.println("SA status response for " + orderId + ": " + response);
+
+            if (response == null || response.isBlank() || response.equals("ORDER_NOT_FOUND")) {
+                continue;
+            }
+
+            String status = parseOrderStatusResponse(response);
+            if (!status.isBlank()) {
+                model.setValueAt(status, i, 2);
+
+                if (status.equalsIgnoreCase("delivered")) {
+                    recordDeliveredOrderLocally(orderId);
+                }
+            }
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
+private String parseOrderStatusResponse(String jsonResponse) {
+    try {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(jsonResponse);
+
+        if (root.has("orderStatus") && !root.get("orderStatus").isNull()) {
+            return root.get("orderStatus").asText();
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return "";
+}
+
+private void recordDeliveredOrderLocally(String orderId) {
+    try {
+        // Replace this with your teammate's actual local status update / delivery-record method
+        // Example:
+        // saOrdApi.updateOrderStatus(orderId, "delivered");
+        System.out.println("Record delivery locally for order: " + orderId);
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
 
 
 

@@ -318,18 +318,7 @@ public class NewOrder extends javax.swing.JDialog {
         return;
     }
 
-    //submitted SA order in the local CA database so Orders.loadOrders() can pick it up.
-    try {
-        SA_ORD_API localOrderApi = new SA_ORD_API(DBConnection.getConnection());
-        boolean inserted = localOrderApi.insertOrder(orderId, true);
-        if (inserted) {
-            localOrderApi.addItems(orderId, itemIDs, quantities);
-        } else {
-            System.err.println("Failed to persist SA order locally: " + orderId);
-        }
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
+
 
     System.out.println("Parsed SA orderId: " + orderId);
 
@@ -347,6 +336,19 @@ public class NewOrder extends javax.swing.JDialog {
     if (!submitted) {
         javax.swing.JOptionPane.showMessageDialog(this, "Failed to submit order to SA.");
         return;
+    }
+    
+        //submitted SA order in the local CA database so Orders.loadOrders() can pick it up.
+    try {
+        SA_ORD_API localOrderApi = new SA_ORD_API(DBConnection.getConnection());
+        boolean inserted = localOrderApi.insertOrder(orderId, true);
+        if (inserted) {
+            localOrderApi.addItems(orderId, itemIDs, quantities);
+        } else {
+            System.err.println("Failed to persist SA order locally: " + orderId);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
     }
 
     int totalQuantity = 0;
