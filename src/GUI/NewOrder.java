@@ -308,7 +308,7 @@ public class NewOrder extends javax.swing.JDialog {
 
         System.out.println("=== SA NEW ORDER RESPONSE DEBUG ===");
         System.out.println("Raw SA response: " + orderResponse);
-        System.out.println("All JSON fields: " + root.fieldNames().hasNext() ? root.fieldNames() : "NO FIELDS");
+        System.out.println("All JSON fields: " + (root.fieldNames().hasNext() ? root.fieldNames() : "NO_FIELDS"));
         
         if (root.get("orderId") == null) {
             System.out.println("ERROR: 'orderId' field not found in SA response!");
@@ -358,7 +358,7 @@ public class NewOrder extends javax.swing.JDialog {
         //submitted SA order in the local CA database so Orders.loadOrders() can pick it up.
     try {
         SA_ORD_API localOrderApi = new SA_ORD_API(DBConnection.getConnection());
-        boolean inserted = localOrderApi.insertOrder(orderId, true);
+        boolean inserted = localOrderApi.insertOrder(orderId, false);
         if (inserted) {
             localOrderApi.addItems(orderId, itemIDs, quantities);
         } else {

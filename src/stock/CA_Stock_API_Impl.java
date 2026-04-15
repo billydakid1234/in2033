@@ -226,57 +226,72 @@ public class CA_Stock_API_Impl {
     }
 
 
-
+public boolean recordDelivery(int productId, int quantity) {
+    return recordDelivery(productId, quantity, null);
+}
 
     /**
      * RECORD DELIVERY (increase stock from SA)
      */
-    public boolean recordDelivery(int productId, int quantity) {
-        return recordDelivery(productId, quantity, null);
-    }
+public boolean recordDelivery(int productId, int quantity, String email) {
+    if (conn == null) return false;
 
-    public boolean recordDelivery(int productId, int quantity, String email) {
-        if (conn == null) return false;
-
-        // Basic validation
-        if (quantity <= 0) {
-            System.out.println("Invalid delivery quantity");
-            return false;
-        }
-
-        try {
-            String sql = "UPDATE ca_stock SET quantity = quantity + ? WHERE product_id = ?";
-            PreparedStatement ps = conn.prepareStatement(sql);
-
-            ps.setInt(1, quantity);
-            ps.setInt(2, productId);
-
-            int rows = ps.executeUpdate();
-
-            if (rows > 0) {
-                System.out.println("Delivery recorded: +" + quantity + " for product " + productId);
-                // Sending email details to PU here
-                if (puCommsApi != null && email != null && !email.isBlank()) {
-                    String subject = "Stock Delivery Recorded";
-                    String content = "<html><body>"
-                            + "<h3>Stock Delivery Update</h3>"
-                            + "<p>Product ID: " + productId + "</p>"
-                            + "<p>Quantity added: " + quantity + "</p>"
-                            + "</body></html>";
-
-                    puCommsApi.sendEmail(email, subject, content);
-                }
-                return true;
-            } else {
-                System.out.println("Product not found");
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
+    // Basic validation
+    if (quantity <= 0) {
+        System.out.println("Invalid delivery quantity");
         return false;
     }
+
+    try {
+        // Try to UPDATE existing stock
+        String sql = "UPDATE ca_stock SET quantity = quantity + ? WHERE product_id = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+
+        ps.setInt(1, quantity);
+        ps.setInt(2, productId);
+
+        int rows = ps.executeUpdate();
+
+        if (rows > 0) {
+            // Product exists so updated
+            System.out.println("Delivery recorded: +" + quantity + " for product " + productId);
+
+        } else {
+            // Product does not exist so INSERT it
+            System.out.println("Product not found → inserting new stock row");
+
+            String insert = "INSERT INTO ca_stock (product_id, quantity, low_stock_threshold) VALUES (?, ?, ?)";
+            PreparedStatement psInsert = conn.prepareStatement(insert);
+
+            psInsert.setInt(1, productId);
+            psInsert.setInt(2, quantity);
+            psInsert.setInt(3, 10); // default threshold
+
+            psInsert.executeUpdate();
+
+            System.out.println("New product added to stock with quantity " + quantity);
+        }
+
+        //Optional email (unchanged)
+        if (puCommsApi != null && email != null && !email.isBlank()) {
+            String subject = "Stock Delivery Recorded";
+            String content = "<html><body>"
+                    + "<h3>Stock Delivery Update</h3>"
+                    + "<p>Product ID: " + productId + "</p>"
+                    + "<p>Quantity added: " + quantity + "</p>"
+                    + "</body></html>";
+
+            puCommsApi.sendEmail(email, subject, content);
+        }
+
+        return true;
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return false;
+}
 
     /**
      * GET CURRENT STOCK LEVEL

@@ -702,13 +702,21 @@ private void refreshStatusesFromSA() {
             (javax.swing.table.DefaultTableModel) jOrdersTable.getModel();
 
         for (int i = 0; i < model.getRowCount(); i++) {
+            
+
+            
             String orderId = String.valueOf(model.getValueAt(i, 0));
 
-            if (orderId == null || orderId.isBlank()) {
-                continue;
-            }
+        if (orderId == null || orderId.isBlank()) { 
+            continue;
+        }
 
-            String response = saCommsApi.getOrderStatuses("orderId=" + orderId);
+        if (!orderId.startsWith("220")) {
+            continue;
+        }
+
+        String response = saCommsApi.getOrderStatuses("orderId=" + orderId);
+            
             System.out.println("SA status response for " + orderId + ": " + response);
 
             if (response == null || response.isBlank() || response.equals("ORDER_NOT_FOUND")) {
@@ -746,6 +754,7 @@ private String parseOrderStatusResponse(String jsonResponse) {
 
 private void recordDeliveredOrderLocally(String orderId) {
     try {
+
         // Record delivery in local database
         boolean success = saOrdApi.recordDelivery(orderId);
         if (success) {
@@ -753,8 +762,32 @@ private void recordDeliveredOrderLocally(String orderId) {
         } else {
             System.out.println("Failed to record delivery for order: " + orderId);
         }
+
+        String localStatus = saOrdApi.getLocalOrderStatus(orderId);
+
+        if ("delivered".equalsIgnoreCase(localStatus)) {
+            return;
+        }
+
+        stock.CA_Stock_API_Impl stockApi =
+            new stock.CA_Stock_API_Impl(database.DBConnection.getConnection());
+
+        Map<Integer, Integer> items = saOrdApi.getOrderItems(orderId);
+
+for (Map.Entry<Integer, Integer> entry : items.entrySet()) {
+    int productId = entry.getKey();
+    int quantity = entry.getValue();
+
+    System.out.println("Delivered order: " + orderId);
+    System.out.println("Updating stock for product " + productId + " by " + quantity);
+
+    stockApi.recordDelivery(productId, quantity, null);
+}
+
+        saOrdApi.updateOrderStatus(orderId, "delivered");
+        System.out.println("Delivery recorded locally for order: " + orderId);
+
     } catch (Exception e) {
-        e.printStackTrace();
     }
 }
 

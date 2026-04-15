@@ -311,9 +311,7 @@ public class SA_ORD_API {
 
     
     
-    
-    public ResultSet getAllOrders() {
-        
+public ResultSet getAllOrders() {
     try {
         String query =
             "SELECT " +
@@ -336,6 +334,49 @@ public class SA_ORD_API {
         return null;
     }
 }
-    
-    
+
+public String getLocalOrderStatus(String orderID) {
+    try {
+        String sql = "SELECT CASE WHEN processed = 1 THEN 'delivered' ELSE 'pending' END AS status FROM ca_online_orders WHERE online_order_id = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, orderID);
+
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            return rs.getString("status");
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return null;
 }
+
+public Map<Integer, Integer> getOrderItems(String orderID) {
+    Map<Integer, Integer> items = new HashMap<>();
+
+    try {
+        String sql = "SELECT product_id, quantity FROM ca_online_order_items WHERE online_order_id = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, orderID);
+
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            items.put(rs.getInt("product_id"), rs.getInt("quantity"));
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return items;
+}
+
+
+
+}
+    
+    

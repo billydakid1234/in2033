@@ -14,10 +14,10 @@ public class SA_ORD_API {
     private CA_Stock_API_Impl stockApi;
 
     // how to connect to the database and run queries will be in all classes to connect and change the database
-    public SA_ORD_API(Connection conn, CA_Stock_API_Impl stockApi) {
-        this.conn = conn;
-        this.stockApi = stockApi;
-    }
+public SA_ORD_API(Connection conn) {
+    this.conn = conn;
+    this.stockApi = new CA_Stock_API_Impl(conn);
+}
 
     /**
      * Create new order
@@ -251,4 +251,68 @@ public class SA_ORD_API {
 
         return catalogue;
     }
+    
+public Map<Integer, Integer> getOrderItems(String orderID) {
+    Map<Integer, Integer> items = new HashMap<>();
+
+    try {
+        String sql = "SELECT product_id, quantity FROM ca_online_order_items WHERE online_order_id = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, orderID);
+
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            items.put(rs.getInt("product_id"), rs.getInt("quantity"));
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return items;
 }
+
+public boolean updateOrderStatus(String orderID, String status) {
+    try {
+        String sql = "UPDATE ca_online_orders SET status = ? WHERE online_order_id = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, status);
+        ps.setString(2, orderID);
+
+        return ps.executeUpdate() > 0;
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return false;
+}
+
+public String getLocalOrderStatus(String orderID) {
+    try {
+        String sql = "SELECT status FROM ca_online_orders WHERE online_order_id = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, orderID);
+
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            return rs.getString("status");
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return null;
+} 
+
+    
+}
+
+
+
+
+
+
