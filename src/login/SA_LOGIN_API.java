@@ -1,7 +1,5 @@
 package login;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import database.DBConnection;
 import java.sql.PreparedStatement;
@@ -17,46 +15,39 @@ public class SA_LOGIN_API {
 
 
     /**
-     * Hash password using SHA-256
-     */
-    private String hashPassword(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] bytes = md.digest(password.getBytes());
-
-            StringBuilder sb = new StringBuilder();
-            for (byte b : bytes) {
-                sb.append(String.format("%02x", b));
-            }
-
-            return sb.toString();
-
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA-256 not available");
-        }
-    }
-
-    /**
      * LOGIN
      */
 public boolean login(String username, String password) {
+    if (username == null || password == null) {
+        return false;
+    }
+
+    username = username.trim();
+    password = password.trim();
+    if (username.isEmpty() || password.isEmpty()) {
+        return false;
+    }
 
     String sql = "SELECT password_hash FROM ca_users WHERE username = ?";
 
-    try (Connection conn = DBConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
+    try (Connection conn = DBConnection.getConnection()) {
+        if (conn == null) {
+            System.out.println("Login failed because DB connection is null.");
+            return false;
+        }
 
-        ps.setString(1, username);
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
 
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                String storedPassword = rs.getString("password_hash");
-                boolean authenticated = storedPassword.equals(password)
-                        || storedPassword.equals(hashPassword(password));
-                if (authenticated) {
-                    currentLoggedInUsername = username;
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String storedPassword = rs.getString("password_hash");
+                    boolean authenticated = storedPassword.equals(password);
+                    if (authenticated) {
+                        currentLoggedInUsername = username;
+                    }
+                    return authenticated;
                 }
-                return authenticated;
             }
         }
 
@@ -106,7 +97,7 @@ public boolean createStaff(String username, String password, String roleName) {
 
         try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
             ps.setString(1, username);
-            ps.setString(2, hashPassword(password));
+            ps.setString(2, password);
             ps.setInt(3, roleId);
             return ps.executeUpdate() > 0;
         }
