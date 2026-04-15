@@ -4,3 +4,7 @@ then run the add sql
 will need mysql lite installed as well as python 3.6 or higher
 
 I recommend using pycharm to run the code
+
+or run in terminal:
+python3 build_sql_as_db.py
+python3 add_sql_data.py
