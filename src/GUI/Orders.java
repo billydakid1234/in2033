@@ -529,15 +529,30 @@ private void loadLoggedInBalance() {
     String orderId = jOrdersTable.getValueAt(selectedRow, 0).toString();
 
     try {
+        System.out.println("=== INVOICE REQUEST DEBUG ===");
+        System.out.println("Selected row: " + selectedRow);
+        System.out.println("Order ID from table (column 0): [" + orderId + "]");
+        System.out.println("Order ID length: " + orderId.length());
+        System.out.println("Order ID type/format: appears to be " + 
+            (orderId.matches("\\d{5}-\\d{2}-\\d{2}") ? "NUMERIC (like 22026-04-12)" : "OTHER"));
+        
         String response = saCommsApi.getInvoice("orderId=" + orderId);
         System.out.println("SA invoice response for " + orderId + ": " + response);
 
         if (response == null || response.isBlank()) {
-            javax.swing.JOptionPane.showMessageDialog(this,
-                "No invoice data returned from SA.");
+            showInvoiceFallback(orderId, "No invoice data returned from SA.");
             return;
         }
 
+        // If the response appears to be an SA error message instead of invoice text,
+        // fallback to a locally generated invoice view.
+        if (response.toLowerCase().contains("couldnt")
+            || response.toLowerCase().contains("couldn't")
+            || response.toLowerCase().contains("could not")
+            || response.toLowerCase().contains("invoice details")) {
+            showInvoiceFallback(orderId, response);
+            return;
+        }
         javax.swing.JTextArea area = new javax.swing.JTextArea(response);
         area.setEditable(false);
         area.setLineWrap(true);

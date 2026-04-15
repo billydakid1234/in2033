@@ -306,7 +306,24 @@ public class NewOrder extends javax.swing.JDialog {
             new com.fasterxml.jackson.databind.ObjectMapper();
         com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(orderResponse);
 
-        if (root.get("orderId") == null || root.get("orderId").asText().isBlank()) {
+        System.out.println("=== SA NEW ORDER RESPONSE DEBUG ===");
+        System.out.println("Raw SA response: " + orderResponse);
+        System.out.println("All JSON fields: " + root.fieldNames().hasNext() ? root.fieldNames() : "NO FIELDS");
+        
+        if (root.get("orderId") == null) {
+            System.out.println("ERROR: 'orderId' field not found in SA response!");
+            System.out.println("Available fields: " + root.fieldNames());
+            javax.swing.JOptionPane.showMessageDialog(this, "SA response did not contain a valid orderId.");
+            return;
+        }
+        
+        orderId = root.get("orderId").asText();
+        System.out.println("Extracted orderId: [" + orderId + "]");
+        System.out.println("Order ID length: " + orderId.length());
+        System.out.println("Order ID matches numeric format (like 22026-04-12): " + 
+            orderId.matches("\\d{5}-\\d{2}-\\d{2}"));
+        
+        if (orderId.isBlank()) {
             javax.swing.JOptionPane.showMessageDialog(this, "SA response did not contain a valid orderId.");
             return;
         }
