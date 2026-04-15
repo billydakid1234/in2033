@@ -50,8 +50,9 @@ public boolean login(String username, String password) {
 
         try (ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
-                String storedHash = rs.getString("password_hash");
-                boolean authenticated = storedHash.equals(hashPassword(password));
+                String storedPassword = rs.getString("password_hash");
+                boolean authenticated = storedPassword.equals(password)
+                        || storedPassword.equals(hashPassword(password));
                 if (authenticated) {
                     currentLoggedInUsername = username;
                 }
