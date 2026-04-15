@@ -1,3 +1,4 @@
+# coding=utf-8
 import sqlite3
 from openpyxl import Workbook
 from openpyxl.worksheet.table import Table, TableStyleInfo
@@ -7,8 +8,8 @@ import os
 # -----------------------------
 # SETTINGS
 # -----------------------------
-sqlite_db_path = "CA_db.db"
-excel_output_path = "CA_db.xlsx"
+sqlite_db_path = "For Demo SQL/CA_db.db"
+excel_output_path = "CA_db_demo.xlsx"
 
 # -----------------------------
 # CONNECT TO SQLITE
