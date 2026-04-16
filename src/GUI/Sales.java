@@ -13,6 +13,8 @@ import merchant.SA_Merchant_API_Impl;
 import sa_orders.SA_ORD_API;
 import templates.TemplateAPI;
 import templates.TemplateAPI_Impl;
+// OPTIONAL: Import for dynamic product loading from database
+// import stock.CA_Stock_API_Impl;
 
 /**
  *
@@ -27,6 +29,9 @@ public class Sales extends javax.swing.JPanel {
         {"P003", "Cough Syrup", "6.80"},
         {"P004", "Vitamin C Tablets", "8.10"}
     };
+    // OPTIONAL: Use dynamic product list instead of hardcoded array
+    // private List<Object[]> productCatalog = new ArrayList<>();
+    
     private boolean cardDetailsCaptured;
     private String cardSummary = "";
     private String cardNumberForBackend = "";
@@ -35,6 +40,8 @@ public class Sales extends javax.swing.JPanel {
     private final SA_ORD_API saOrdApi = new SA_ORD_API(DBConnection.getConnection());
     private final TemplateAPI templateAPI = new TemplateAPI_Impl();
     private final PU_COMMS_API_Impl puCommsApi = new PU_COMMS_API_Impl();
+    // OPTIONAL: Add this to enable database product loading
+    // private final CA_Stock_API_Impl stockApi = new CA_Stock_API_Impl(DBConnection.getConnection());
 
     /**
      * Creates new form Sales
@@ -560,6 +567,53 @@ public class Sales extends javax.swing.JPanel {
         updateAccountIdVisibility();
         updateSummary();
     }
+    
+    /*
+     * OPTIONAL: Alternative implementation to load products dynamically from database
+     * To use this, uncomment and replace the above initialiseSalesPage() method.
+     * Also uncomment the stockApi field and CA_Stock_API_Impl import above.
+     * 
+    private void initialiseSalesPage_Dynamic() {
+        // Load products from database
+        productCatalog.clear();
+        jComboBox1.removeAllItems();
+        
+        try {
+            List<Object[]> allStockItems = stockApi.getAllStockItems();
+            for (Object[] item : allStockItems) {
+                productCatalog.add(item);
+                // item[0] = product_id, item[1] = product_name, item[4] = price
+                String productId = String.valueOf(item[0]);
+                String productName = (String) item[1];
+                double price = (Double) item[4];
+                jComboBox1.addItem(productId + " - " + productName);
+            }
+            
+            if (productCatalog.isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this, 
+                    "No products available in stock. Please add products first.");
+            }
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                "Error loading products: " + e.getMessage());
+        }
+
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] {
+            "Occasional Customer", "Account Holder"
+        }));
+        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] {
+            "Cash", "Card"
+        }));
+
+        jTextField2.setText("");
+        cardDetailsCaptured = false;
+        cardSummary = "";
+        jTable1.setRowHeight(24);
+        jTable1.getTableHeader().setReorderingAllowed(false);
+        updateAccountIdVisibility();
+        updateSummary();
+    }
+     */
 
     private void addSelectedItemToSale() {
         int selectedIndex = jComboBox1.getSelectedIndex();
@@ -606,6 +660,66 @@ public class Sales extends javax.swing.JPanel {
         jLabel7.setText(model.getRowCount() + " item(s) recorded in this sale.");
         updateSummary();
     }
+
+    /*
+     * OPTIONAL: Alternative implementation to work with dynamic product list from database
+     * To use this, uncomment and replace the above addSelectedItemToSale() method.
+     * Also uncomment the productCatalog field and CA_Stock_API_Impl import at the top.
+     * 
+    private void addSelectedItemToSale_Dynamic() {
+        int selectedIndex = jComboBox1.getSelectedIndex();
+        if (selectedIndex < 0) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Select a product to add.");
+            return;
+        }
+
+        if (selectedIndex >= productCatalog.size()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Invalid product selection.");
+            return;
+        }
+
+        int quantity;
+        try {
+            quantity = Integer.parseInt(jTextField1.getText().trim());
+        } catch (NumberFormatException ex) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Enter a valid quantity.");
+            return;
+        }
+
+        if (quantity <= 0) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Quantity must be greater than 0.");
+            return;
+        }
+
+        Object[] product = productCatalog.get(selectedIndex);
+        // product[0] = product_id, product[1] = product_name, product[4] = price
+        String productId = String.valueOf(product[0]);
+        String productName = (String) product[1];
+        double unitPrice = (Double) product[4];
+        double lineTotal = unitPrice * quantity;
+        javax.swing.table.DefaultTableModel model =
+            (javax.swing.table.DefaultTableModel) jTable1.getModel();
+
+        int existingRow = findRowByProductId(model, productId);
+        if (existingRow >= 0) {
+            int updatedQuantity = ((Number) model.getValueAt(existingRow, 2)).intValue() + quantity;
+            model.setValueAt(updatedQuantity, existingRow, 2);
+            model.setValueAt(formatCurrency(unitPrice * updatedQuantity), existingRow, 4);
+        } else {
+            model.addRow(new Object[] {
+                productId,
+                productName,
+                quantity,
+                formatCurrency(unitPrice),
+                formatCurrency(lineTotal)
+            });
+        }
+
+        jTextField1.setText("1");
+        jLabel7.setText(model.getRowCount() + " item(s) recorded in this sale.");
+        updateSummary();
+    }
+     */
 
     private int findRowByProductId(javax.swing.table.DefaultTableModel model, String productId) {
         for (int row = 0; row < model.getRowCount(); row++) {

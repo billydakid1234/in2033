@@ -24,6 +24,7 @@ import templates.TemplateAPI_Impl;
 import database.DBConnection;
 import merchant.SA_Merchant_API_Impl;
 import java.sql.Connection;
+import login.SA_LOGIN_API;
 
 public class Customers extends javax.swing.JPanel {
     
@@ -31,6 +32,7 @@ public class Customers extends javax.swing.JPanel {
     private final CustomerAPI customerAPI = new CustomerAPI_Impl();
     private SA_Merchant_API_Impl merchantAPI; 
     private final TemplateAPI templateAPI = new TemplateAPI_Impl();
+    private SA_LOGIN_API loginApi;
     
     /**
      * Creates new form Customers
@@ -52,6 +54,7 @@ public Customers() {
     
     Connection conn = DBConnection.getConnection();
     merchantAPI = new SA_Merchant_API_Impl(conn);
+    loginApi = new SA_LOGIN_API();
 
 try {
     customerAPI.normaliseStatuses();
@@ -84,6 +87,7 @@ public Customers(String role) {
     this.userRole = role;
     Connection conn = DBConnection.getConnection();
     merchantAPI = new SA_Merchant_API_Impl(conn);
+    loginApi = new SA_LOGIN_API();
 
     try {
         customerAPI.normaliseStatuses();
@@ -97,6 +101,33 @@ public Customers(String role) {
     loadCustomersTable();
 }
      
+    private boolean canAddCustomer() {
+        return loginApi.isAdminOrManagerRole(loginApi.getCurrentLoggedInUsername());
+    }
+
+    private boolean canRemoveCustomer() {
+        return loginApi.isAdminOrManagerRole(loginApi.getCurrentLoggedInUsername());
+    }
+
+    private boolean canUpdateCreditLimit() {
+        return loginApi.isAdminOrManagerRole(loginApi.getCurrentLoggedInUsername());
+    }
+
+    private boolean canReactivateAccount() {
+        return loginApi.isAdminOrManagerRole(loginApi.getCurrentLoggedInUsername());
+    }
+
+    private boolean canManageDiscountPlans() {
+        return loginApi.isAdminOrManagerRole(loginApi.getCurrentLoggedInUsername());
+    }
+
+    private boolean canRecordPayment() {
+        return loginApi.isAdminOrManagerRole(loginApi.getCurrentLoggedInUsername());
+    }
+
+    private boolean canGenerateReminders() {
+        return loginApi.isAdminOrManagerRole(loginApi.getCurrentLoggedInUsername());
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -317,6 +348,11 @@ public Customers(String role) {
     }//GEN-LAST:event_jTextField1ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    if (!canAddCustomer()) {
+        JOptionPane.showMessageDialog(this,
+            "Access denied. Only managers and admin can add customers.");
+        return;
+    }
                                     
     javax.swing.JTextField txtName = new javax.swing.JTextField();
     javax.swing.JTextField txtDob = new javax.swing.JTextField();
@@ -453,6 +489,12 @@ public Customers(String role) {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        if (!canRemoveCustomer()) {
+            JOptionPane.showMessageDialog(this,
+                "Access denied. Only managers and admin can remove customers.");
+            return;
+        }
+        
         int selectedRow = jTable1.getSelectedRow();
 
         if (selectedRow == -1) {
@@ -486,6 +528,12 @@ public Customers(String role) {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    if (!canUpdateCreditLimit()) {
+        JOptionPane.showMessageDialog(this,
+            "Access denied. Only managers and admin can update credit limits.");
+        return;
+    }
+    
     int selectedRow = jTable1.getSelectedRow();
 
     if (selectedRow == -1) {
@@ -538,9 +586,9 @@ public Customers(String role) {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-            if (userRole == null || !userRole.equalsIgnoreCase("Manager")) {
+            if (!canReactivateAccount()) {
         JOptionPane.showMessageDialog(this,
-            "Access denied. Only managers can reactivate accounts.");
+            "Access denied. Only managers and admin can reactivate accounts.");
         return;
     }
 
@@ -592,6 +640,12 @@ public Customers(String role) {
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+    if (!canManageDiscountPlans()) {
+        JOptionPane.showMessageDialog(this,
+            "Access denied. Only managers and admin can manage discount plans.");
+        return;
+    }
+    
     int selectedRow = jTable1.getSelectedRow();
 
     if (selectedRow == -1) {
@@ -661,6 +715,12 @@ public Customers(String role) {
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+            if (!canRecordPayment()) {
+        JOptionPane.showMessageDialog(this,
+            "Access denied. Only managers and admin can record payments.");
+        return;
+    }
+    
             int selectedRow = jTable1.getSelectedRow();
 
     if (selectedRow == -1) {
@@ -715,6 +775,12 @@ try {
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+        if (!canManageDiscountPlans()) {
+            JOptionPane.showMessageDialog(this,
+                "Access denied. Only managers and admin can manage discount plans.");
+            return;
+        }
+        
         int selectedRow = jTable1.getSelectedRow();
 
     if (selectedRow == -1) {
@@ -783,6 +849,12 @@ try {
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
+            if (!canManageDiscountPlans()) {
+        JOptionPane.showMessageDialog(this,
+            "Access denied. Only managers and admin can manage discount plans.");
+        return;
+    }
+    
             int selectedRow = jTable1.getSelectedRow();
 
     if (selectedRow == -1) {
@@ -818,6 +890,12 @@ try {
     }//GEN-LAST:event_jButton8ActionPerformed
 
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
+    if (!canGenerateReminders()) {
+        JOptionPane.showMessageDialog(this,
+            "Access denied. Only managers and admin can generate reminders.");
+        return;
+    }
+    
     int selectedRow = jTable1.getSelectedRow();
 
     if (selectedRow == -1) {
